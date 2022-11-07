@@ -1,5 +1,6 @@
-# npo-backend-template
-This template will be used to create all NPO backend repos
+# Cell Dogs Backend
+
+This is the backend for the Cell Dogs project.
 
 ## Setting up development environment
 
