@@ -77,7 +77,22 @@ user.put('/user/:email', async (req, res) => {
 
         if (firstName != '')
         {
-            
+            await pool.query(`update User set firstName = ${firstName} where email = ${email}`);
+        }
+
+        if (lastName != '')
+        {
+            await pool.query(`update User set lastName = ${lastName} where email = ${email}`);
+        }
+
+        if (facility != '')
+        {
+            await pool.query(`update User set facility = ${facility} where email = ${email}`);
+        }
+        
+        if (newEmail != '')
+        {
+            await pool.query(`update User set email = ${newEmail} where email = ${email}`);
         }
         
     }
