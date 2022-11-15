@@ -1,4 +1,4 @@
-create table IF NOT EXISTS User(
+create table User(
     id varchar(50) unique not null;
     email varchar(50) primary key not null;
     firstName varchar(50) not null;
