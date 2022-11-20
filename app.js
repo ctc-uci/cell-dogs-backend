@@ -3,8 +3,9 @@ const cors = require('cors');
 
 require('dotenv').config();
 
-const app = express();
+const usersRouter = require('./routes/users');
 
+const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(
@@ -12,6 +13,8 @@ app.use(
     origin: `${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}`,
   }),
 );
+
+app.use('/users', usersRouter);
 
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);

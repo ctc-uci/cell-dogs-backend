@@ -1,9 +1,9 @@
 const express = require('express');
 
-const user = express();
-const pool = require('../server/db');
+const user = express.Router(); // This should be an express.Router instance;
+const { pool } = require('../server/db');
 
-user.get('/user', async (req, res) => {
+user.get('/', async (req, res) => {
   try {
     const allUserInfo = await pool.query('select * from public.user');
     res.send(allUserInfo.rows);
@@ -12,7 +12,7 @@ user.get('/user', async (req, res) => {
   }
 });
 
-user.get('/user/:email', async (req, res) => {
+user.get('/:email', async (req, res) => {
   try {
     const { email } = req.params;
     const userInfo = await pool.query(`select * from public.user where email = '${email}'`);
@@ -22,7 +22,7 @@ user.get('/user/:email', async (req, res) => {
   }
 });
 
-user.post('/user', async (req, res) => {
+user.post('/', async (req, res) => {
   try {
     const { id, email, firstName, lastName, facility } = req.body;
     const newUser = await pool.query(
@@ -34,7 +34,7 @@ user.post('/user', async (req, res) => {
   }
 });
 
-user.delete('/user/:email', async (req, res) => {
+user.delete('/:email', async (req, res) => {
   try {
     const { email } = req.params;
     await pool.query(`delete from public.user where email = '${email}'}`);
@@ -44,41 +44,31 @@ user.delete('/user/:email', async (req, res) => {
   }
 });
 
-user.put('/user/:email', async (req, res) => {
+user.put('/:email', async (req, res) => {
   try {
     const { email } = req.params;
 
-    // data.map((element) => {
-    //     if (element)
-    //     {
+    const { id, firstName, lastName, facility, newEmail } = req.body;
 
-    //     }
-    // })
-
-    const { id } = req.body.id;
-    const { firstName } = req.body.firstName;
-    const { lastName } = req.body.lastName;
-    const { facility } = req.body.facility;
-    const { newEmail } = req.body.email;
-    if (id !== '') {
+    if (id !== null) {
       await pool.query(`update public.user set id = '${id}' where email = '${email}'`);
     }
 
-    if (firstName !== '') {
+    if (firstName !== null) {
       await pool.query(
         `update public.user set firstName = '${firstName}' where email = '${email}'`,
       );
     }
 
-    if (lastName !== '') {
+    if (lastName !== null) {
       await pool.query(`update public.user set lastName = '${lastName}' where email = '${email}'`);
     }
 
-    if (facility !== '') {
+    if (facility !== null) {
       await pool.query(`update public.user set facility = '${facility}' where email = '${email}'`);
     }
 
-    if (newEmail !== '') {
+    if (newEmail !== null) {
       await pool.query(`update public.user set email = '${newEmail}' where email = '${email}'`);
     }
   } catch (err) {
