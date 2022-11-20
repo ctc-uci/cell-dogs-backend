@@ -18,7 +18,7 @@ facilityRouter.get('/', async (req, res) => {
 facilityRouter.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const facility = await db.query('SELECT * FROM facility WHERE facility_id = $(id)', { id });
+    const facility = await db.query('SELECT * FROM facility WHERE id = $(id)', { id });
     res.status(200).send(facility);
     console.log(facility);
   } catch (err) {
@@ -30,10 +30,10 @@ facilityRouter.get('/:id', async (req, res) => {
 facilityRouter.post('/', async (req, res) => {
   try {
     console.log(req);
-    const { name, addressLine, city, state, zip, description } = req.body;
+    const { name, addressLine, city, state, zipcode, description } = req.body;
     const newFacility = await db.query(
-      'INSERT INTO facility (name, address_line, city, state, zip, description) VALUES ($(name), $(addressLine), $(city), $(state), $(zip), $(description)) RETURNING *',
-      { name, addressLine, city, state, zip, description },
+      'INSERT INTO facility (name, address_line, city, state, zipcode, description) VALUES ($(name), $(addressLine), $(city), $(state), $(zipcode), $(description)) RETURNING *',
+      { name, addressLine, city, state, zipcode, description },
     );
     res.status(200).send(newFacility);
     console.log(newFacility);
@@ -46,13 +46,13 @@ facilityRouter.post('/', async (req, res) => {
 facilityRouter.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, addressLine, city, state, zip, description } = req.body;
+    const { name, addressLine, city, state, zipcode, description } = req.body;
     const updatedFacility = await db.query(
       `UPDATE facility
-      SET name = $(name), address_line = $(addressLine), city = $(city), state = $(state), zip = $(zip), description = $(description)
-      WHERE facility_id = $(id)
+      SET name = $(name), address_line = $(addressLine), city = $(city), state = $(state), zipcode = $(zipcode), description = $(description)
+      WHERE id = $(id)
       RETURNING *;`,
-      { id, name, addressLine, city, state, zip, description },
+      { id, name, addressLine, city, state, zipcode, description },
     );
     res.status(200).send(updatedFacility);
   } catch (err) {
@@ -64,7 +64,7 @@ facilityRouter.put('/:id', async (req, res) => {
 facilityRouter.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    await db.query('DELETE from facility WHERE facility_id = $(id)', { id });
+    await db.query('DELETE from facility WHERE id = $(id)', { id });
     res.status(200).send('Deleted facility');
   } catch (err) {
     res.status(500).send(err.message);
