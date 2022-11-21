@@ -29,14 +29,20 @@ facilityRouter.get('/:id', async (req, res) => {
 facilityRouter.post('/', async (req, res) => {
   try {
     const { name, addressLine, city, state, zipcode, description } = req.body;
-    isZipCode(zipcode, 'Not a valid zipcode');
+    if (zipcode) {
+      try {
+        isZipCode(zipcode, 'Not a valid zipcode');
+      } catch (err) {
+        res.status(400).send(err.message);
+      }
+    }
     const newFacility = await db.query(
       'INSERT INTO facility (name, address_line, city, state, zipcode, description) VALUES ($(name), $(addressLine), $(city), $(state), $(zipcode), $(description)) RETURNING *',
       { name, addressLine, city, state, zipcode, description },
     );
     res.status(200).send(newFacility);
   } catch (err) {
-    res.status(400).send(err.message);
+    res.status(500).send(err.message);
   }
 });
 
@@ -46,7 +52,11 @@ facilityRouter.put('/:id', async (req, res) => {
     const { id } = req.params;
     const { name, addressLine, city, state, zipcode, description } = req.body;
     if (zipcode) {
-      isZipCode(zipcode, 'Not a valid zipcode');
+      try {
+        isZipCode(zipcode, 'Not a valid zipcode');
+      } catch (err) {
+        res.status(400).send(err.message);
+      }
     }
     const updatedFacility = await db.query(
       `UPDATE facility SET
@@ -63,7 +73,7 @@ facilityRouter.put('/:id', async (req, res) => {
     );
     res.status(200).send(updatedFacility);
   } catch (err) {
-    res.status(400).send(err.message);
+    res.status(500).send(err.message);
   }
 });
 
