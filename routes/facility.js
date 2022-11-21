@@ -29,12 +29,10 @@ facilityRouter.get('/:id', async (req, res) => {
 facilityRouter.post('/', async (req, res) => {
   try {
     const { name, addressLine, city, state, zipcode, description } = req.body;
-    if (zipcode) {
-      try {
-        isZipCode(zipcode, 'Not a valid zipcode');
-      } catch (err) {
-        return res.status(400).send(err.message);
-      }
+    try {
+      isZipCode(zipcode, 'Not a valid zipcode');
+    } catch (err) {
+      return res.status(400).send(err.message);
     }
     const newFacility = await db.query(
       'INSERT INTO facility (name, address_line, city, state, zipcode, description) VALUES ($(name), $(addressLine), $(city), $(state), $(zipcode), $(description)) RETURNING *',
