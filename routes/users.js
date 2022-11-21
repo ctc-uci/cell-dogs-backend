@@ -3,17 +3,14 @@ const express = require('express');
 const user = express.Router(); // This should be an express.Router instance;
 const { pool } = require('../server/db');
 
-user.use(express.json());
-user.use(express.urlencoded());
-
 const { isNumeric } = require('../common/utils');
 
 user.get('/', async (req, res) => {
   try {
     const allUserInfo = await pool.query('select * from public.user');
-    res.send(allUserInfo.rows);
+    res.status(200).send(allUserInfo.rows);
   } catch (err) {
-    res.status(400).send(err.message);
+    res.status(500).send(err.message);
   }
 });
 
@@ -21,22 +18,28 @@ user.get('/:email', async (req, res) => {
   try {
     const { email } = req.params;
     const userInfo = await pool.query(`select * from public.user where email = '${email}'`);
-    res.send(userInfo.rows);
+    res.status(200).send(userInfo.rows);
   } catch (err) {
-    res.status(400).send(err.message);
+    res.status(500).send(err.message);
   }
 });
 
 user.post('/', async (req, res) => {
   try {
-    const { id, email, firstName, lastName, facility } = req.query;
+    const { id, email, firstName, lastName, facility } = req.body;
+
+    try {
+      isNumeric(facility, 'Not a valid facility');
+    } catch (err) {
+      return res.status(400).send(err.message);
+    }
 
     const newUser = await pool.query(
       `insert into public.user (id, email, first_name, last_name, facility) values ('${id}', '${email}', '${firstName}', '${lastName}', ${facility}) returning *`,
     );
-    res.send(newUser.rows);
+    res.status(200).send(newUser.rows);
   } catch (err) {
-    res.status(400).send(err.message);
+    res.status(500).send(err.message);
   }
 });
 
@@ -44,49 +47,45 @@ user.delete('/:email', async (req, res) => {
   try {
     const { email } = req.params;
     await pool.query(`delete from public.user where email = '${email}'`);
-    res.send(`User with email ${email} was deleted.`);
+    res.status(200).send(`User with email ${email} was deleted.`);
   } catch (err) {
-    res.status(400).send(err.message);
+    res.status(500).send(err.message);
   }
 });
 
 user.put('/:email', async (req, res) => {
   try {
     const { email } = req.params;
-
-    // const { id } = req.body.id;
-    // const { firstName } = req.body.first_name;
-    // const { lastName } = req.body.last_name;
-    // const { newEmail } = req.body.email;
-    // const { facility } = req.body.facility;
-
     const { id, newEmail, firstName, lastName, facility } = req.body;
 
-    // const { id, firstName, lastName, facility, newEmail } = req.query;
-
-    if (id !== null) {
-      await pool.query(`update public.user set id = '${id}' where email = '${email}'`);
+    try {
+      isNumeric(facility, 'Not a valid facility');
+    } catch (err) {
+      return res.status(400).send(err.message);
     }
 
-    if (firstName !== null) {
-      await pool.query(
-        `update public.user set first_name = '${firstName}' where email = '${email}'`,
-      );
-    }
-
-    if (lastName !== null) {
-      await pool.query(`update public.user set last_name = '${lastName}' where email = '${email}'`);
-    }
-
-    if (facility !== null && isNumeric(facility)) {
-      await pool.query(`update public.user set facility = ${facility} where email = '${email}'`);
-    }
-
-    if (newEmail !== null) {
-      await pool.query(`update public.user set email = '${newEmail}' where email = '${email}'`);
-    }
+    const updatedUser = await pool.query(
+      `UPDATE public.user SET
+      ${id ? ` id = '${id}' ` : ''}
+      ${email ? `, email = '${newEmail}' ` : ''}
+      ${firstName ? `, first_name = '${firstName}' ` : ''}
+      ${lastName ? `, last_name = '${lastName}' ` : ''}
+      ${facility ? `, facility = ${facility} ` : ''}
+      WHERE email = '${email}'
+      RETURNING *;`,
+    );
+    // (
+    //   `update public.user set
+    //   ${id !== undefined ? ` id = ${id}` : ''}
+    //   ${newEmail !== undefined ? `, email = ${newEmail}` : ''}
+    //   ${firstName !== undefined ? `, first_name = ${firstName}` : ''}
+    //   ${lastName !== undefined ? `, last_name = ${lastName}` : ''}
+    //   ${facility !== undefined ? `, facility = ${facility}` : ''}
+    //   where email = $(email)`
+    // );
+    res.status(200).send(updatedUser.rows);
   } catch (err) {
-    res.status(400).send(err.message);
+    res.status(500).send(err.message);
   }
 });
 
