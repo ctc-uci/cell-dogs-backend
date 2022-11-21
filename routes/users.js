@@ -8,9 +8,9 @@ const { isNumeric } = require('../common/utils');
 user.get('/', async (req, res) => {
   try {
     const allUserInfo = await pool.query('select * from public.user');
-    res.status(200).send(allUserInfo.rows);
+    return res.status(200).send(allUserInfo.rows);
   } catch (err) {
-    res.status(500).send(err.message);
+    return res.status(500).send(err.message);
   }
 });
 
@@ -18,9 +18,9 @@ user.get('/:email', async (req, res) => {
   try {
     const { email } = req.params;
     const userInfo = await pool.query(`select * from public.user where email = '${email}'`);
-    res.status(200).send(userInfo.rows);
+    return res.status(200).send(userInfo.rows);
   } catch (err) {
-    res.status(500).send(err.message);
+    return res.status(500).send(err.message);
   }
 });
 
@@ -37,9 +37,9 @@ user.post('/', async (req, res) => {
     const newUser = await pool.query(
       `insert into public.user (id, email, first_name, last_name, facility) values ('${id}', '${email}', '${firstName}', '${lastName}', ${facility}) returning *`,
     );
-    res.status(200).send(newUser.rows);
+    return res.status(200).send(newUser.rows);
   } catch (err) {
-    res.status(500).send(err.message);
+    return res.status(500).send(err.message);
   }
 });
 
@@ -47,9 +47,9 @@ user.delete('/:email', async (req, res) => {
   try {
     const { email } = req.params;
     await pool.query(`delete from public.user where email = '${email}'`);
-    res.status(200).send(`User with email ${email} was deleted.`);
+    return res.status(200).send(`User with email ${email} was deleted.`);
   } catch (err) {
-    res.status(500).send(err.message);
+    return res.status(500).send(err.message);
   }
 });
 
@@ -74,18 +74,9 @@ user.put('/:email', async (req, res) => {
       WHERE email = '${email}'
       RETURNING *;`,
     );
-    // (
-    //   `update public.user set
-    //   ${id !== undefined ? ` id = ${id}` : ''}
-    //   ${newEmail !== undefined ? `, email = ${newEmail}` : ''}
-    //   ${firstName !== undefined ? `, first_name = ${firstName}` : ''}
-    //   ${lastName !== undefined ? `, last_name = ${lastName}` : ''}
-    //   ${facility !== undefined ? `, facility = ${facility}` : ''}
-    //   where email = $(email)`
-    // );
-    res.status(200).send(updatedUser.rows);
+    return res.status(200).send(updatedUser.rows);
   } catch (err) {
-    res.status(500).send(err.message);
+    return res.status(500).send(err.message);
   }
 });
 
