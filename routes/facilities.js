@@ -33,16 +33,16 @@ facilityRouter.post('/', async (req, res) => {
       try {
         isZipCode(zipcode, 'Not a valid zipcode');
       } catch (err) {
-        res.status(400).send(err.message);
+        return res.status(400).send(err.message);
       }
     }
     const newFacility = await db.query(
       'INSERT INTO facility (name, address_line, city, state, zipcode, description) VALUES ($(name), $(addressLine), $(city), $(state), $(zipcode), $(description)) RETURNING *',
       { name, addressLine, city, state, zipcode, description },
     );
-    res.status(200).send(newFacility);
+    return res.status(200).send(newFacility);
   } catch (err) {
-    res.status(500).send(err.message);
+    return res.status(500).send(err.message);
   }
 });
 
@@ -55,7 +55,7 @@ facilityRouter.put('/:id', async (req, res) => {
       try {
         isZipCode(zipcode, 'Not a valid zipcode');
       } catch (err) {
-        res.status(400).send(err.message);
+        return res.status(400).send(err.message);
       }
     }
     const updatedFacility = await db.query(
@@ -71,9 +71,9 @@ facilityRouter.put('/:id', async (req, res) => {
       RETURNING *;`,
       { id, name, addressLine, city, state, zipcode, description },
     );
-    res.status(200).send(updatedFacility);
+    return res.status(200).send(updatedFacility);
   } catch (err) {
-    res.status(500).send(err.message);
+    return res.status(500).send(err.message);
   }
 });
 
