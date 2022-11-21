@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 
-const facilityRouter = require('./routes/facility');
+const facilityRouter = require('./routes/facilities');
 
 require('dotenv').config();
 

@@ -2,14 +2,13 @@ const express = require('express');
 const { isZipCode } = require('../common/utils');
 const { db } = require('../server/db');
 
-const facilityRouter = express.Router();
+const facilityRouter = express();
 
 // GET all facilities
 facilityRouter.get('/', async (req, res) => {
   try {
     const allFacilities = await db.query('SELECT * FROM facility');
     res.status(200).send(allFacilities);
-    console.log(allFacilities);
   } catch (err) {
     res.status(500).send(err.message);
   }
@@ -21,7 +20,6 @@ facilityRouter.get('/:id', async (req, res) => {
     const { id } = req.params;
     const facility = await db.query('SELECT * FROM facility WHERE id = $(id)', { id });
     res.status(200).send(facility);
-    console.log(facility);
   } catch (err) {
     res.status(500).send(err.message);
   }
@@ -37,9 +35,8 @@ facilityRouter.post('/', async (req, res) => {
       { name, addressLine, city, state, zipcode, description },
     );
     res.status(200).send(newFacility);
-    console.log(newFacility);
   } catch (err) {
-    res.status(400).send(err.message);
+    res.status(500).send(err.message);
   }
 });
 
@@ -53,19 +50,20 @@ facilityRouter.put('/:id', async (req, res) => {
     }
     const updatedFacility = await db.query(
       `UPDATE facility SET
-      ${name ? `name = '${name}' ` : ''}
-      ${addressLine ? `, address_line = '${addressLine}' ` : ''}
-      ${city ? `, city = '${city}' ` : ''}
-      ${state ? `, state = '${state}' ` : ''}
-      ${zipcode ? `, zipcode = ${zipcode} ` : ''}
-      ${description ? `, description = '${description}' ` : ''}
+      id = $(id)
+      ${name ? `, name = $(name) ` : ''}
+      ${addressLine ? `, address_line = $(addressLine) ` : ''}
+      ${city ? `, city = $(city) ` : ''}
+      ${state ? `, state = $(state) ` : ''}
+      ${zipcode ? `, zipcode = $(zipcode) ` : ''}
+      ${description ? `, description = $(description) ` : ''}
       WHERE id = ${id}
       RETURNING *;`,
       { id, name, addressLine, city, state, zipcode, description },
     );
     res.status(200).send(updatedFacility);
   } catch (err) {
-    res.status(400).send(err.message);
+    res.status(500).send(err.message);
   }
 });
 
