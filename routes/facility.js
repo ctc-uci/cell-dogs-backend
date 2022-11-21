@@ -1,4 +1,5 @@
 const express = require('express');
+const { isZipCode } = require('../common/utils');
 const { db } = require('../server/db');
 
 const facilityRouter = express.Router();
@@ -29,8 +30,8 @@ facilityRouter.get('/:id', async (req, res) => {
 // CREATE a new facility
 facilityRouter.post('/', async (req, res) => {
   try {
-    console.log(req);
     const { name, addressLine, city, state, zipcode, description } = req.body;
+    isZipCode(zipcode, 'Not a valid zipcode');
     const newFacility = await db.query(
       'INSERT INTO facility (name, address_line, city, state, zipcode, description) VALUES ($(name), $(addressLine), $(city), $(state), $(zipcode), $(description)) RETURNING *',
       { name, addressLine, city, state, zipcode, description },
@@ -42,15 +43,23 @@ facilityRouter.post('/', async (req, res) => {
   }
 });
 
-// UPDATE facility rows
+// UPDATE facility row
 facilityRouter.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { name, addressLine, city, state, zipcode, description } = req.body;
+    if (zipcode) {
+      isZipCode(zipcode, 'Not a valid zipcode');
+    }
     const updatedFacility = await db.query(
-      `UPDATE facility
-      SET name = $(name), address_line = $(addressLine), city = $(city), state = $(state), zipcode = $(zipcode), description = $(description)
-      WHERE id = $(id)
+      `UPDATE facility SET
+      ${name ? `name = '${name}' ` : ''}
+      ${addressLine ? `, address_line = '${addressLine}' ` : ''}
+      ${city ? `, city = '${city}' ` : ''}
+      ${state ? `, state = '${state}' ` : ''}
+      ${zipcode ? `, zipcode = ${zipcode} ` : ''}
+      ${description ? `, description = '${description}' ` : ''}
+      WHERE id = ${id}
       RETURNING *;`,
       { id, name, addressLine, city, state, zipcode, description },
     );
