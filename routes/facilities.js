@@ -36,7 +36,7 @@ facilityRouter.post('/', async (req, res) => {
     );
     res.status(200).send(newFacility);
   } catch (err) {
-    res.status(500).send(err.message);
+    res.status(400).send(err.message);
   }
 });
 
@@ -63,7 +63,7 @@ facilityRouter.put('/:id', async (req, res) => {
     );
     res.status(200).send(updatedFacility);
   } catch (err) {
-    res.status(500).send(err.message);
+    res.status(400).send(err.message);
   }
 });
 
