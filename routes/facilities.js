@@ -57,7 +57,7 @@ facilityRouter.put('/:id', async (req, res) => {
       ${state ? `, state = $(state) ` : ''}
       ${zipcode ? `, zipcode = $(zipcode) ` : ''}
       ${description ? `, description = $(description) ` : ''}
-      WHERE id = ${id}
+      WHERE id = $(id)
       RETURNING *;`,
       { id, name, addressLine, city, state, zipcode, description },
     );
