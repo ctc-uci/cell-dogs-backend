@@ -1,14 +1,14 @@
 const express = require('express');
 
-const user = express.Router(); // This should be an express.Router instance;
-const { pool } = require('../server/db');
+const user = express(); // This should be an express.Router instance;
+const { db } = require('../server/db');
 
 const { isNumeric } = require('../common/utils');
 
 user.get('/', async (req, res) => {
   try {
-    const allUserInfo = await pool.query('select * from public.user');
-    return res.status(200).send(allUserInfo.rows);
+    const allUserInfo = await db.query('SELECT * FROM public.user');
+    return res.status(200).send(allUserInfo);
   } catch (err) {
     return res.status(500).send(err.message);
   }
@@ -17,8 +17,10 @@ user.get('/', async (req, res) => {
 user.get('/:email', async (req, res) => {
   try {
     const { email } = req.params;
-    const userInfo = await pool.query(`select * from public.user where email = '${email}'`);
-    return res.status(200).send(userInfo.rows);
+    const userInfo = await db.query(`SELECT * FROM public.user WHERE EMAIL = $(email)`, {
+      email,
+    });
+    return res.status(200).send(userInfo);
   } catch (err) {
     return res.status(500).send(err.message);
   }
@@ -34,10 +36,17 @@ user.post('/', async (req, res) => {
       return res.status(400).send(err.message);
     }
 
-    const newUser = await pool.query(
-      `insert into public.user (id, email, first_name, last_name, facility) values ('${id}', '${email}', '${firstName}', '${lastName}', ${facility}) returning *`,
+    const newUser = await db.query(
+      `INSERT INTO public.user (id, email, first_name, last_name, facility) VALUES ($(id), $(email), $(firstName), $(lastName), $(facility)) RETURNING *`,
+      {
+        id,
+        email,
+        firstName,
+        lastName,
+        facility,
+      },
     );
-    return res.status(200).send(newUser.rows);
+    return res.status(200).send(newUser);
   } catch (err) {
     return res.status(500).send(err.message);
   }
@@ -46,7 +55,7 @@ user.post('/', async (req, res) => {
 user.delete('/:email', async (req, res) => {
   try {
     const { email } = req.params;
-    await pool.query(`delete from public.user where email = '${email}'`);
+    await db.query(`DELETE FROM public.user WHERE email = $(email)`, { email });
     return res.status(200).send(`User with email ${email} was deleted.`);
   } catch (err) {
     return res.status(500).send(err.message);
@@ -64,17 +73,18 @@ user.put('/:email', async (req, res) => {
       return res.status(400).send(err.message);
     }
 
-    const updatedUser = await pool.query(
+    const updatedUser = await db.query(
       `UPDATE public.user SET
-      ${id ? ` id = '${id}' ` : ''}
-      ${email ? `, email = '${newEmail}' ` : ''}
-      ${firstName ? `, first_name = '${firstName}' ` : ''}
-      ${lastName ? `, last_name = '${lastName}' ` : ''}
-      ${facility ? `, facility = ${facility} ` : ''}
-      WHERE email = '${email}'
+      ${id ? ` id = $(id) ` : ''}
+      ${email ? `, email = $(newEmail) ` : ''}
+      ${firstName ? `, first_name = $(firstName) ` : ''}
+      ${lastName ? `, last_name = $(lastName) ` : ''}
+      ${facility ? `, facility = $(facility)` : ''}
+      WHERE email = $(email)
       RETURNING *;`,
+      { id, newEmail, firstName, lastName, facility, email },
     );
-    return res.status(200).send(updatedUser.rows);
+    return res.status(200).send(updatedUser);
   } catch (err) {
     return res.status(500).send(err.message);
   }
