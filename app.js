@@ -1,13 +1,12 @@
 const express = require('express');
 const cors = require('cors');
+require('dotenv').config();
 
 const facilityRouter = require('./routes/facility');
-
-require('dotenv').config();
+const usersRouter = require('./routes/users');
 
 const app = express();
 app.use(express.json());
-
 const PORT = process.env.PORT || 3001;
 
 app.use(
@@ -16,6 +15,7 @@ app.use(
   }),
 );
 
+app.use('/users', usersRouter);
 app.use('/facility', facilityRouter);
 
 app.listen(PORT, () => {
