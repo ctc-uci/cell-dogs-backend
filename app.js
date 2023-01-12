@@ -1,8 +1,8 @@
 const express = require('express');
 const cors = require('cors');
-
 require('dotenv').config();
 
+const facilityRouter = require('./routes/facility');
 const usersRouter = require('./routes/users');
 
 const app = express();
@@ -16,6 +16,7 @@ app.use(
 );
 
 app.use('/users', usersRouter);
+app.use('/facility', facilityRouter);
 
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
