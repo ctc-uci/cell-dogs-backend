@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const dog = require('./routes/dog');
 
 require('dotenv').config();
 
@@ -12,6 +13,9 @@ app.use(
     origin: `${process.env.REACT_APP_HOST}:${process.env.REACT_APP_PORT}`,
   }),
 );
+
+app.use(express.json());
+app.use('/dog', dog);
 
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
