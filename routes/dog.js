@@ -25,72 +25,72 @@ dog.get('/:dogId', async (request, response) => {
 dog.post('/', async (request, response) => {
   try {
     const {
-      dogId,
-      facilityId,
-      groupNum,
-      gradDate,
-      dogName,
+      dogid,
+      facilityid,
+      groupnum,
+      graddate,
+      dogname,
       age,
       shelter,
       breed,
-      chipType,
-      chipNum,
+      chiptype,
+      chipnum,
       gender,
-      profilePic,
-      altName,
+      profilepic,
+      altname,
       notes,
-      adopterName,
-      adopterPhone,
-      addrLine,
-      adoptCity,
-      adoptState,
+      adoptername,
+      adopterphone,
+      addrline,
+      adoptcity,
+      adoptstate,
       zip,
-      adoptEmail,
+      adoptemail,
       fees,
       revenue,
     } = request.body;
-    await db.query(
-      `INSERT INTO dog(dogId, facilityId, groupNum,
-        gradDate, dogName, age,
-        shelter, breed, chipType,
-        chipNum, gender, profilePic,
-        altName, notes, adopterName,
-        adopterPhone, addrLine, adoptCity,
-        adoptState, zip, adoptEmail,
+    const newDog = await db.query(
+      `INSERT INTO dog(dogid, facilityid, groupnum,
+        graddate, dogname, age,
+        shelter, breed, chiptype,
+        chipnum, gender, profilepic,
+        altname, notes, adoptername,
+        adopterphone, addrline, adoptcity,
+        adoptstate, zip, adoptemail,
         fees, revenue)
-      VALUES('$(dogId)', '$(facilityId)', '$(groupNum)',
-      '$(gradDate), '$(dogName)', '$(age)', '$(shelter)',
-      '$(breed)', '$(chipType)', '$(chipNum)', '$(gender)',
-       '$(profilePic)', '$(altName)', '$(notes)', '$(adopterName)',
-        '$(adopterPhone)', '$(addrLine)', '$(adoptCity)', '$(adoptState)',
-         '$(zip)', '$(adoptEmail)', '$(fees)', '$(revenue)')`,
+      VALUES($(dogid), $(facilityid), $(groupnum),
+      $(graddate), $(dogname), $(age), $(shelter),
+      $(breed), $(chiptype), $(chipnum), $(gender),
+       $(profilepic), $(altname), $(notes), $(adoptername),
+        $(adopterphone), $(addrline), $(adoptcity), $(adoptstate),
+         $(zip), $(adoptemail), $(fees), $(revenue)) RETURNING *`,
       {
-        dogId,
-        facilityId,
-        groupNum,
-        gradDate,
-        dogName,
+        dogid,
+        facilityid,
+        groupnum,
+        graddate,
+        dogname,
         age,
         shelter,
         breed,
-        chipType,
-        chipNum,
+        chiptype,
+        chipnum,
         gender,
-        profilePic,
-        altName,
+        profilepic,
+        altname,
         notes,
-        adopterName,
-        adopterPhone,
-        addrLine,
-        adoptCity,
-        adoptState,
+        adoptername,
+        adopterphone,
+        addrline,
+        adoptcity,
+        adoptstate,
         zip,
-        adoptEmail,
+        adoptemail,
         fees,
         revenue,
       },
     );
-    response.send('Updated Database.');
+    response.send(newDog);
   } catch (err) {
     response.status(400).send(err.message);
   }
@@ -111,79 +111,78 @@ dog.put('/:dogId', async (req, res) => {
     const { dogId } = req.params;
 
     const {
-      facilityId,
-      groupNum,
-      gradDate,
-      dogName,
+      facilityid,
+      groupnum,
+      graddate,
+      dogname,
       age,
       shelter,
       breed,
-      chipType,
-      chipNum,
+      chiptype,
+      chipnum,
       gender,
-      profilePic,
-      altName,
+      profilepic,
+      altname,
       notes,
-      adopterName,
-      adopterPhone,
-      addrLine,
-      adoptCity,
-      adoptState,
+      adoptername,
+      adopterphone,
+      addrline,
+      adoptcity,
+      adoptstate,
       zip,
-      adoptEmail,
+      adoptemail,
       fees,
       revenue,
     } = req.body;
     const updateDog = await db.query(
       `UPDATE dog SET
-      dogId = $(dogId)
-      ${facilityId !== undefined ? `, facilityId = $(facilityId)` : ''}
-      ${groupNum !== undefined ? `, groupNum = $(groupNum)` : ''}
-      ${gradDate !== undefined ? `, gradDate = $(gradDate)` : ''}
-      ${dogName !== undefined ? `, dogName = $(dogName)` : ''}
+      ${facilityid !== undefined ? ` facilityid = $(facilityid)` : ''}
+      ${groupnum !== undefined ? `, groupnum = $(groupnum)` : ''}
+      ${graddate !== undefined ? `, graddate = $(graddate)` : ''}
+      ${dogname !== undefined ? `, dogName = $(dogname)` : ''}
       ${age !== undefined ? `, age = $(age)` : ''}
       ${shelter !== undefined ? `, shelter = $(shelter)` : ''}
       ${breed !== undefined ? `, breed = $(breed)` : ''}
-      ${chipType !== undefined ? `, chipType = $(chipType)` : ''}
-      ${chipNum !== undefined ? `, chipNum = $(chipNum)` : ''}
+      ${chiptype !== undefined ? `, chiptype = $(chiptype)` : ''}
+      ${chipnum !== undefined ? `, chipnum = $(chipnum)` : ''}
       ${gender !== undefined ? `, gender = $(gender)` : ''}
-      ${profilePic !== undefined ? `, profilePic = $(profilePic)` : ''}
-      ${altName !== undefined ? `, altName = $(altName)` : ''}
+      ${profilepic !== undefined ? `, profilepic = $(profilepic)` : ''}
+      ${altname !== undefined ? `, altname = $(altname)` : ''}
       ${notes !== undefined ? `, notes = $(notes)` : ''}
-      ${adopterName !== undefined ? `, adopterName = $(adopterName)` : ''}
-      ${adopterPhone !== undefined ? `, adopterPhone = $(adopterPhone)` : ''}
-      ${addrLine !== undefined ? `, addrLine = $(addrLine)` : ''}
-      ${adoptCity !== undefined ? `, adoptCity = $(adoptCity)` : ''}
-      ${adoptState !== undefined ? `, adoptState = $(adoptState)` : ''}
+      ${adoptername !== undefined ? `, adoptername = $(adoptername)` : ''}
+      ${adopterphone !== undefined ? `, adopterphone = $(adopterphone)` : ''}
+      ${addrline !== undefined ? `, addrline = $(addrline)` : ''}
+      ${adoptcity !== undefined ? `, adoptcity = $(adoptcity)` : ''}
+      ${adoptstate !== undefined ? `, adoptstate = $(adoptstate)` : ''}
       ${zip !== undefined ? `, zip = $(zip)` : ''}
-      ${adoptEmail !== undefined ? `, adoptEmail = $(adoptEmail)` : ''}
+      ${adoptemail !== undefined ? `, adoptemail = $(adoptemail)` : ''}
       ${fees !== undefined ? `, fees = $(fees)` : ''}
       ${revenue !== undefined ? `, revenue = $(revenue)` : ''}
       WHERE
-        dogId = $(dogId)
+        dogid = $(dogId)
         RETURNING *;`,
       {
         dogId,
-        facilityId,
-        groupNum,
-        gradDate,
-        dogName,
+        facilityid,
+        groupnum,
+        graddate,
+        dogname,
         age,
         shelter,
         breed,
-        chipType,
-        chipNum,
+        chiptype,
+        chipnum,
         gender,
-        profilePic,
-        altName,
+        profilepic,
+        altname,
         notes,
-        adopterName,
-        adopterPhone,
-        addrLine,
-        adoptCity,
-        adoptState,
+        adoptername,
+        adopterphone,
+        addrline,
+        adoptcity,
+        adoptstate,
         zip,
-        adoptEmail,
+        adoptemail,
         fees,
         revenue,
       },
