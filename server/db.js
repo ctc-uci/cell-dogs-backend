@@ -10,6 +10,8 @@ const pool = new Pool({
   database: process.env.AWS_DB_NAME,
 });
 
+console.log(pool);
+
 const cn = `postgres://${process.env.AWS_USER}:${encodeURIComponent(process.env.AWS_PASSWORD)}@${
   process.env.AWS_HOST
 }:${process.env.AWS_PORT}/${process.env.AWS_DB_NAME}`; // For pgp

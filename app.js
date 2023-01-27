@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const dog = require('./routes/dog');
 require('dotenv').config();
 
 const facilityRouter = require('./routes/facility');
@@ -15,6 +16,8 @@ app.use(
   }),
 );
 
+app.use(express.json());
+app.use('/dog', dog);
 app.use('/users', usersRouter);
 app.use('/facility', facilityRouter);
 
