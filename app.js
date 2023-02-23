@@ -29,6 +29,10 @@ app.use('/dog', dog);
 app.use('/users', usersRouter);
 app.use('/facility', facilityRouter);
 
+app.get('/lebronjames', (req, res) => {
+  return res.status(200).send('lebron james!');
+});
+
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
 });
