@@ -106,3 +106,5 @@ dist
 .DS_Store
 
 firebase-adminsdk.json
+package-lock.json
+yarn.lock
