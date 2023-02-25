@@ -108,3 +108,4 @@ dist
 firebase-adminsdk.json
 package-lock.json
 yarn.lock
+package.json
