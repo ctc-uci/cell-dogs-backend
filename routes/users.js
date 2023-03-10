@@ -3,12 +3,12 @@ const express = require('express');
 const user = express(); // This should be an express.Router instance;
 const { db } = require('../server/db');
 
-const { isNumeric } = require('../common/utils');
+const { isNumeric, keysToCamel } = require('../common/utils');
 
 user.get('/', async (req, res) => {
   try {
     const allUserInfo = await db.query('SELECT * FROM public.user');
-    return res.status(200).send(allUserInfo);
+    return res.status(200).send(keysToCamel(allUserInfo));
   } catch (err) {
     return res.status(500).send(err.message);
   }
@@ -20,7 +20,7 @@ user.get('/:email', async (req, res) => {
     const userInfo = await db.query(`SELECT * FROM public.user WHERE EMAIL = $(email)`, {
       email,
     });
-    return res.status(200).send(userInfo);
+    return res.status(200).send(keysToCamel(userInfo.length > 0 ? userInfo[0] : {}));
   } catch (err) {
     return res.status(500).send(err.message);
   }
@@ -46,17 +46,7 @@ user.post('/', async (req, res) => {
         facility,
       },
     );
-    return res.status(200).send(newUser);
-  } catch (err) {
-    return res.status(500).send(err.message);
-  }
-});
-
-user.delete('/:email', async (req, res) => {
-  try {
-    const { email } = req.params;
-    await db.query(`DELETE FROM public.user WHERE email = $(email)`, { email });
-    return res.status(200).send(`User with email ${email} was deleted.`);
+    return res.status(200).send(keysToCamel(newUser));
   } catch (err) {
     return res.status(500).send(err.message);
   }
@@ -84,7 +74,17 @@ user.put('/:email', async (req, res) => {
       RETURNING *;`,
       { id, newEmail, firstName, lastName, facility, email },
     );
-    return res.status(200).send(updatedUser);
+    return res.status(200).send(keysToCamel(updatedUser));
+  } catch (err) {
+    return res.status(500).send(err.message);
+  }
+});
+
+user.delete('/:email', async (req, res) => {
+  try {
+    const { email } = req.params;
+    await db.query(`DELETE FROM public.user WHERE email = $(email)`, { email });
+    return res.status(200).send(`User with email ${email} was deleted.`);
   } catch (err) {
     return res.status(500).send(err.message);
   }
