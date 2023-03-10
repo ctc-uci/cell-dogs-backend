@@ -64,12 +64,10 @@ user.put('/:email', async (req, res) => {
 
     const updatedUser = await db.query(
       `UPDATE public.user SET
- 
         email = $(newEmail),
         first_name = $(firstName),
         last_name = $(lastName),
         facility = $(facility)
-
       WHERE email = $(email)
       RETURNING *;`,
       { newEmail, firstName, lastName, facility, email },
