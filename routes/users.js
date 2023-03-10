@@ -28,7 +28,7 @@ user.get('/:email', async (req, res) => {
 
 user.post('/', async (req, res) => {
   try {
-    const { id, email, firstName, lastName, facility } = req.body;
+    const { email, firstName, lastName, facility } = req.body;
 
     try {
       isNumeric(facility, 'Not a valid facility');
@@ -37,9 +37,8 @@ user.post('/', async (req, res) => {
     }
 
     const newUser = await db.query(
-      `INSERT INTO public.user (id, email, first_name, last_name, facility) VALUES ($(id), $(email), $(firstName), $(lastName), $(facility)) RETURNING *`,
+      `INSERT INTO public.user (email, first_name, last_name, facility) VALUES ($(email), $(firstName), $(lastName), $(facility)) RETURNING *`,
       {
-        id,
         email,
         firstName,
         lastName,
