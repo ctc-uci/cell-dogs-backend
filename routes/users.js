@@ -54,7 +54,7 @@ user.post('/', async (req, res) => {
 user.put('/:email', async (req, res) => {
   try {
     const { email } = req.params;
-    const { id, newEmail, firstName, lastName, facility } = req.body;
+    const { newEmail, firstName, lastName, facility } = req.body;
 
     try {
       isNumeric(facility, 'Not a valid facility');
@@ -64,14 +64,15 @@ user.put('/:email', async (req, res) => {
 
     const updatedUser = await db.query(
       `UPDATE public.user SET
-      ${id ? ` id = $(id) ` : ''}
-      ${email ? `, email = $(newEmail) ` : ''}
-      ${firstName ? `, first_name = $(firstName) ` : ''}
-      ${lastName ? `, last_name = $(lastName) ` : ''}
-      ${facility ? `, facility = $(facility)` : ''}
+ 
+        email = $(newEmail),
+        first_name = $(firstName),
+        last_name = $(lastName),
+        facility = $(facility)
+
       WHERE email = $(email)
       RETURNING *;`,
-      { id, newEmail, firstName, lastName, facility, email },
+      { newEmail, firstName, lastName, facility, email },
     );
     return res.status(200).send(keysToCamel(updatedUser));
   } catch (err) {
