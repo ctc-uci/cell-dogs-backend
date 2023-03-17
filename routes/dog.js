@@ -28,7 +28,8 @@ dog.get('/search/:name', async (request, response) => {
     const stringMatchRows = await db.query(
       `SELECT * FROM dog WHERE dogname LIKE '%' || $(name) || '%' OR shelter LIKE '%' || $(name) || '%' OR breed LIKE '%' || $(name) || '%' OR 
       altname LIKE '%' || $(name) || '%' OR notes LIKE '%' || $(name) || '%' OR adoptername LIKE '%' || $(name) || '%' OR adopterphone LIKE '%' || $(name) || '%'
-      OR addrline LIKE '%' || $(name) || '%' OR adoptcity LIKE '%' || $(name) || '%' OR adoptstate LIKE '%' || $(name) || '%' OR zip LIKE '%' || $(name) || '%' OR adoptemail LIKE '%' || $(name) || '%'
+      OR addrline LIKE '%' || $(name) || '%' OR adoptcity LIKE '%' || $(name) || '%' OR adoptstate LIKE '%' || $(name) || '%' OR zip LIKE '%' || $(name) || 
+      '%' OR adoptemail LIKE '%' || $(name) || '%'
 `,
       { name },
     );
