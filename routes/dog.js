@@ -22,6 +22,23 @@ dog.get('/:dogId', async (request, response) => {
   }
 });
 
+dog.get('/search/:name', async (request, response) => {
+  try {
+    const { name } = request.params;
+    const stringMatchRows = await db.query(
+      `SELECT * FROM dog WHERE dogname LIKE '%' || $(name) || '%' OR shelter LIKE '%' || $(name) || '%' OR breed LIKE '%' || $(name) || '%' OR 
+      altname LIKE '%' || $(name) || '%' OR notes LIKE '%' || $(name) || '%' OR adoptername LIKE '%' || $(name) || '%' OR adopterphone LIKE '%' || $(name) || '%'
+      OR addrline LIKE '%' || $(name) || '%' OR adoptcity LIKE '%' || $(name) || '%' OR adoptstate LIKE '%' || $(name) || '%' OR zip LIKE '%' || $(name) || 
+      '%' OR adoptemail LIKE '%' || $(name) || '%'
+`,
+      { name },
+    );
+    response.status(200).json(stringMatchRows);
+  } catch (err) {
+    response.status(400).send(err.message);
+  }
+});
+
 dog.post('/', async (request, response) => {
   try {
     const {
