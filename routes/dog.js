@@ -40,6 +40,7 @@ dog.get('/search/:name', async (request, response) => {
 });
 
 dog.post('/', async (request, response) => {
+  console.log(request.body);
   try {
     const {
       dogid,
@@ -69,6 +70,7 @@ dog.post('/', async (request, response) => {
       staffAdoption,
       specialNeeds,
       deceased,
+      facilityUnit,
     } = request.body;
     const newDog = await db.query(
       `INSERT INTO dog(dogid, facilityid, groupnum,
@@ -79,14 +81,14 @@ dog.post('/', async (request, response) => {
         adopterphone, addrline, adoptcity,
         adoptstate, zip, adoptemail,
         fees, revenue, service, therapy,
-        "staffAdoption", "specialNeeds", deceased)
+        "staffAdoption", "specialNeeds", deceased, "facilityUnit")
       VALUES($(dogid), $(facilityid), $(groupnum),
       $(graddate), $(dogname), $(age), $(shelter),
       $(breed), $(chiptype), $(chipnum), $(gender),
         $(altname), $(notes), $(adoptername),
         $(adopterphone), $(addrline), $(adoptcity), $(adoptstate),
          $(zip), $(adoptemail), $(fees), $(revenue), $(service),
-         $(therapy), $(staffAdoption), $(specialNeeds), $(deceased)) RETURNING *`,
+         $(therapy), $(staffAdoption), $(specialNeeds), $(deceased), $(facilityUnit)) RETURNING *`,
       {
         dogid,
         facilityid,
@@ -115,6 +117,7 @@ dog.post('/', async (request, response) => {
         staffAdoption,
         specialNeeds,
         deceased,
+        facilityUnit
       },
     );
     response.send(newDog);
