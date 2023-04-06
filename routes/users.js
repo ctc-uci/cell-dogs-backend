@@ -1,7 +1,10 @@
 const express = require('express');
+const { uuid } = require('uuidv4');
 
 const user = express(); // This should be an express.Router instance;
 const { db } = require('../server/db');
+const mailer = require('../common/mailer');
+const admin = require('../common/firebase');
 
 const { isNumeric, keysToCamel } = require('../common/utils');
 
@@ -35,16 +38,46 @@ user.post('/', async (req, res) => {
     } catch (err) {
       return res.status(400).send(err.message);
     }
-
+    const registrationId = uuid();
+    const userRecord = await admin.auth().createUser({
+      email,
+      emailVerified: false,
+      password: registrationId,
+      displayName: `${firstName} ${lastName}`,
+      disabled: false,
+    });
+    const { uid } = userRecord;
+    console.log('Successfully created new user:', userRecord.uid);
     const newUser = await db.query(
-      `INSERT INTO public.user (email, first_name, last_name, facility) VALUES ($(email), $(firstName), $(lastName), $(facility)) RETURNING *`,
+      `INSERT INTO public.user (email, first_name, last_name, facility, registration_id, uid) VALUES ($(email), $(firstName), $(lastName), $(facility), $(registrationId), $(uid)) RETURNING *`,
       {
         email,
         firstName,
         lastName,
         facility,
+        registrationId,
+        uid,
       },
     );
+    // add user to firebase
+
+    const resetPasswordLink = await admin.auth().generatePasswordResetLink(email);
+    const mailOptions = {
+      from: process.env.NODEMAILER_EMAIL,
+      to: email,
+      subject: 'Registration Link',
+      text: `Hi ${firstName}, Please click on the following link to register: ${resetPasswordLink}`,
+    };
+
+    mailer.sendMail(mailOptions, (err, info) => {
+      if (err) {
+        console.log(err);
+        throw new Error('Error sending email');
+      } else {
+        console.log(`Email sent: ${info.response}`);
+      }
+    });
+
     return res.status(200).send(keysToCamel(newUser));
   } catch (err) {
     return res.status(500).send(err.message);
