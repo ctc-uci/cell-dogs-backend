@@ -53,7 +53,6 @@ dog.post('/', async (request, response) => {
       chiptype,
       chipnum,
       gender,
-      profilepic,
       altname,
       notes,
       adoptername,
@@ -65,22 +64,29 @@ dog.post('/', async (request, response) => {
       adoptemail,
       fees,
       revenue,
+      service,
+      therapy,
+      staffAdoption,
+      specialNeeds,
+      deceased,
     } = request.body;
     const newDog = await db.query(
       `INSERT INTO dog(dogid, facilityid, groupnum,
         graddate, dogname, age,
         shelter, breed, chiptype,
-        chipnum, gender, profilepic,
+        chipnum, gender,
         altname, notes, adoptername,
         adopterphone, addrline, adoptcity,
         adoptstate, zip, adoptemail,
-        fees, revenue)
+        fees, revenue, service, therapy,
+        "staffAdoption", "specialNeeds", deceased)
       VALUES($(dogid), $(facilityid), $(groupnum),
       $(graddate), $(dogname), $(age), $(shelter),
       $(breed), $(chiptype), $(chipnum), $(gender),
-       $(profilepic), $(altname), $(notes), $(adoptername),
+        $(altname), $(notes), $(adoptername),
         $(adopterphone), $(addrline), $(adoptcity), $(adoptstate),
-         $(zip), $(adoptemail), $(fees), $(revenue)) RETURNING *`,
+         $(zip), $(adoptemail), $(fees), $(revenue), $(service),
+         $(therapy), $(staffAdoption), $(specialNeeds), $(deceased)) RETURNING *`,
       {
         dogid,
         facilityid,
@@ -93,7 +99,6 @@ dog.post('/', async (request, response) => {
         chiptype,
         chipnum,
         gender,
-        profilepic,
         altname,
         notes,
         adoptername,
@@ -105,6 +110,11 @@ dog.post('/', async (request, response) => {
         adoptemail,
         fees,
         revenue,
+        service,
+        therapy,
+        staffAdoption,
+        specialNeeds,
+        deceased,
       },
     );
     response.send(newDog);
@@ -122,11 +132,9 @@ dog.delete('/:dogId', async (request, response) => {
     response.status(400).send(err.message);
   }
 });
-
 dog.put('/:dogId', async (req, res) => {
   try {
     const { dogId } = req.params;
-
     const {
       facilityid,
       groupnum,
@@ -138,7 +146,6 @@ dog.put('/:dogId', async (req, res) => {
       chiptype,
       chipnum,
       gender,
-      profilepic,
       altname,
       notes,
       adoptername,
@@ -150,36 +157,44 @@ dog.put('/:dogId', async (req, res) => {
       adoptemail,
       fees,
       revenue,
+      service,
+      therapy,
+      staffAdoption,
+      specialNeeds,
+      deceased,
     } = req.body;
-    const updateDog = await db.query(
+
+    const updatedDog = await db.query(
       `UPDATE dog SET
-      ${facilityid !== undefined ? ` facilityid = $(facilityid)` : ''}
-      ${groupnum !== undefined ? `, groupnum = $(groupnum)` : ''}
-      ${graddate !== undefined ? `, graddate = $(graddate)` : ''}
-      ${dogname !== undefined ? `, dogName = $(dogname)` : ''}
-      ${age !== undefined ? `, age = $(age)` : ''}
-      ${shelter !== undefined ? `, shelter = $(shelter)` : ''}
-      ${breed !== undefined ? `, breed = $(breed)` : ''}
-      ${chiptype !== undefined ? `, chiptype = $(chiptype)` : ''}
-      ${chipnum !== undefined ? `, chipnum = $(chipnum)` : ''}
-      ${gender !== undefined ? `, gender = $(gender)` : ''}
-      ${profilepic !== undefined ? `, profilepic = $(profilepic)` : ''}
-      ${altname !== undefined ? `, altname = $(altname)` : ''}
-      ${notes !== undefined ? `, notes = $(notes)` : ''}
-      ${adoptername !== undefined ? `, adoptername = $(adoptername)` : ''}
-      ${adopterphone !== undefined ? `, adopterphone = $(adopterphone)` : ''}
-      ${addrline !== undefined ? `, addrline = $(addrline)` : ''}
-      ${adoptcity !== undefined ? `, adoptcity = $(adoptcity)` : ''}
-      ${adoptstate !== undefined ? `, adoptstate = $(adoptstate)` : ''}
-      ${zip !== undefined ? `, zip = $(zip)` : ''}
-      ${adoptemail !== undefined ? `, adoptemail = $(adoptemail)` : ''}
-      ${fees !== undefined ? `, fees = $(fees)` : ''}
-      ${revenue !== undefined ? `, revenue = $(revenue)` : ''}
-      WHERE
-        dogid = $(dogId)
-        RETURNING *;`,
+      facilityid = $(facilityid),
+      groupnum = $(groupnum),
+      graddate = $(graddate),
+      dogname = $(dogname),
+      age = $(age),
+      shelter = $(shelter),
+      breed = $(breed),
+      chiptype = $(chiptype),
+      chipnum = $(chipnum),
+      gender = $(gender),
+      altname = $(altname),
+      notes = $(notes),
+      adoptername = $(adoptername),
+      adopterphone = $(adopterphone),
+      addrline = $(addrline),
+      adoptcity = $(adoptcity),
+      adoptstate = $(adoptstate),
+      zip = $(zip),
+      adoptemail = $(adoptemail),
+      fees = $(fees),
+      revenue = $(revenue),
+      service = $(service),
+      therapy = $(therapy),
+      "staffAdoption" = $(staffAdoption),
+      "specialNeeds" = $(specialNeeds),
+      deceased = $(deceased)
+      WHERE dogid = $(dogId)
+      RETURNING *`,
       {
-        dogId,
         facilityid,
         groupnum,
         graddate,
@@ -190,7 +205,6 @@ dog.put('/:dogId', async (req, res) => {
         chiptype,
         chipnum,
         gender,
-        profilepic,
         altname,
         notes,
         adoptername,
@@ -202,11 +216,18 @@ dog.put('/:dogId', async (req, res) => {
         adoptemail,
         fees,
         revenue,
+        service,
+        therapy,
+        staffAdoption,
+        specialNeeds,
+        deceased,
+        dogId,
       },
     );
-    return res.status(200).send(updateDog);
+
+    res.send(updatedDog.rows[0]);
   } catch (err) {
-    return res.status(500).send(err.message);
+    res.status(400).send(err.message);
   }
 });
 
