@@ -4,6 +4,7 @@ require('dotenv').config();
 
 const facilityRouter = require('./routes/facility');
 const usersRouter = require('./routes/users');
+const facilityContactsRouter = require('./routes/facilityContacts');
 
 const app = express();
 app.use(express.json());
@@ -17,6 +18,7 @@ app.use(
 
 app.use('/users', usersRouter);
 app.use('/facility', facilityRouter);
+app.use('/facilityContacts', facilityContactsRouter);
 
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
