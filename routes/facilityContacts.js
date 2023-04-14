@@ -7,7 +7,6 @@ const facilityContacts = express();
 facilityContacts.get('/', async (req, res) => {
   try {
     const allContacts = await db.query('SELECT * FROM facility_contacts');
-    console.log(allContacts);
     res.status(200).send(allContacts);
   } catch (err) {
     res.status(500).send(err.message);
@@ -51,30 +50,22 @@ facilityContacts.post('/', async (req, res) => {
 });
 
 // UPDATE facility contact row
-facilityContacts.put('/:id', async (req, res) => {
+facilityContacts.put('/:facilityId', async (req, res) => {
   try {
-    const { id } = req.params;
+    const { facilityId } = req.params;
     const { name, title, phoneNumber, emailAddress } = req.body;
-
     const updatedFacilityContact = await db.query(
-      `UPDATE public.facility_contacts SET
-        ${id ? ` facility_id = $(id) ` : ''}
-        ${name ? `, name = $(name) ` : ''}
-        ${title ? `, title = $(title) ` : ''}
-        ${phoneNumber ? `, phone_number = $(phoneNumber) ` : ''}
-        ${emailAddress ? `, email_address = $(emailAddress) ` : ''}
-        WHERE facility_id = $(id)
-        RETURNING *;`,
-      { id, name, title, phoneNumber, emailAddress },
+      `UPDATE facility_contacts SET
+      facility_id = $(facilityId)
+      ${name ? `, name = $(name) ` : ''}
+      ${title ? `, title = $(title) ` : ''}
+      ${phoneNumber ? `, phone_number = $(phoneNumber) ` : ''}
+      ${emailAddress ? `, email_address = $(emailAddress) ` : ''}
+      WHERE facility_id = $(facilityId)
+      RETURNING *;`,
+      { facilityId, name, title, phoneNumber, emailAddress },
     );
-    console.log(`UPDATE public.facility_contacts SET
-    ${id ? ` facility_id = $(id) ` : ''}
-    ${name ? `, name = $(name) ` : ''}
-    ${title ? `, title = $(title) ` : ''}
-    ${phoneNumber ? `, phone_number = $(phoneNumber) ` : ''}
-    ${emailAddress ? `, email_address = $(emailAddress) ` : ''}
-    WHERE facility_id = $(id)
-    RETURNING *;`);
+
     return res.status(200).send(updatedFacilityContact);
   } catch (err) {
     return res.status(500).send(err.message);
@@ -82,10 +73,10 @@ facilityContacts.put('/:id', async (req, res) => {
 });
 
 // DELETE a facility contact
-facilityContacts.delete('/:facility_id', async (req, res) => {
+facilityContacts.delete('/:facilityId', async (req, res) => {
   try {
     const { facilityId } = req.params;
-    await db.query('DELETE from public.facility_contacts WHERE facility_id = $(facility_id)', {
+    await db.query('DELETE from facility_contacts WHERE facility_id = $(facilityId)', {
       facilityId,
     });
     res.status(200).send('Deleted facility');
