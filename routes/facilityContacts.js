@@ -14,18 +14,18 @@ facilityContacts.get('/', async (req, res) => {
 });
 
 // GET facility contact by id
-facilityContacts.get('/:facility_id', async (req, res) => {
+facilityContacts.get('/:facilityId', async (req, res) => {
   try {
     const { facilityId } = req.params;
     const contact = await db.query(
-      'SELECT * FROM public.facility_contacts WHERE facility_id = $(facility_id)',
+      `SELECT * FROM public.facility_contacts WHERE facility_id = $(facilityId)`,
       {
         facilityId,
       },
     );
-    res.status(200).send(contact);
+    return res.status(200).send(contact);
   } catch (err) {
-    res.status(500).send(err.message);
+    return res.status(500).send(err.message);
   }
 });
 
@@ -65,7 +65,6 @@ facilityContacts.put('/:facilityId', async (req, res) => {
       RETURNING *;`,
       { facilityId, name, title, phoneNumber, emailAddress },
     );
-
     return res.status(200).send(updatedFacilityContact);
   } catch (err) {
     return res.status(500).send(err.message);
