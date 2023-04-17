@@ -1,14 +1,17 @@
 const express = require('express');
+const { uuid } = require('uuidv4');
 
 const user = express(); // This should be an express.Router instance;
 const { db } = require('../server/db');
+const mailer = require('../common/mailer');
+const admin = require('../common/firebase');
 
-const { isNumeric } = require('../common/utils');
+const { isNumeric, keysToCamel } = require('../common/utils');
 
 user.get('/', async (req, res) => {
   try {
     const allUserInfo = await db.query('SELECT * FROM public.user');
-    return res.status(200).send(allUserInfo);
+    return res.status(200).send(keysToCamel(allUserInfo));
   } catch (err) {
     return res.status(500).send(err.message);
   }
@@ -20,7 +23,7 @@ user.get('/:email', async (req, res) => {
     const userInfo = await db.query(`SELECT * FROM public.user WHERE EMAIL = $(email)`, {
       email,
     });
-    return res.status(200).send(userInfo);
+    return res.status(200).send(keysToCamel(userInfo.length > 0 ? userInfo[0] : {}));
   } catch (err) {
     return res.status(500).send(err.message);
   }
@@ -28,7 +31,63 @@ user.get('/:email', async (req, res) => {
 
 user.post('/', async (req, res) => {
   try {
-    const { id, email, firstName, lastName, facility } = req.body;
+    const { email, firstName, lastName, facility } = req.body;
+
+    try {
+      isNumeric(facility, 'Not a valid facility');
+    } catch (err) {
+      return res.status(400).send(err.message);
+    }
+    const registrationId = uuid();
+    const userRecord = await admin.auth().createUser({
+      email,
+      emailVerified: false,
+      password: registrationId,
+      displayName: `${firstName} ${lastName}`,
+      disabled: false,
+    });
+    const { uid } = userRecord;
+    console.log('Successfully created new user:', userRecord.uid);
+    const newUser = await db.query(
+      `INSERT INTO public.user (email, first_name, last_name, facility, registration_id, uid) VALUES ($(email), $(firstName), $(lastName), $(facility), $(registrationId), $(uid)) RETURNING *`,
+      {
+        email,
+        firstName,
+        lastName,
+        facility,
+        registrationId,
+        uid,
+      },
+    );
+    // add user to firebase
+
+    const resetPasswordLink = await admin.auth().generatePasswordResetLink(email);
+    const mailOptions = {
+      from: process.env.NODEMAILER_EMAIL,
+      to: email,
+      subject: 'Registration Link',
+      text: `Hi ${firstName}, Please click on the following link to register: ${resetPasswordLink}`,
+    };
+
+    mailer.sendMail(mailOptions, (err, info) => {
+      if (err) {
+        console.log(err);
+        throw new Error('Error sending email');
+      } else {
+        console.log(`Email sent: ${info.response}`);
+      }
+    });
+
+    return res.status(200).send(keysToCamel(newUser));
+  } catch (err) {
+    return res.status(500).send(err.message);
+  }
+});
+
+user.put('/:email', async (req, res) => {
+  try {
+    const { email } = req.params;
+    const { newEmail, firstName, lastName, facility } = req.body;
 
     try {
       isNumeric(facility, 'Not a valid facility');
@@ -36,17 +95,17 @@ user.post('/', async (req, res) => {
       return res.status(400).send(err.message);
     }
 
-    const newUser = await db.query(
-      `INSERT INTO public.user (id, email, first_name, last_name, facility) VALUES ($(id), $(email), $(firstName), $(lastName), $(facility)) RETURNING *`,
-      {
-        id,
-        email,
-        firstName,
-        lastName,
-        facility,
-      },
+    const updatedUser = await db.query(
+      `UPDATE public.user SET
+        email = $(newEmail),
+        first_name = $(firstName),
+        last_name = $(lastName),
+        facility = $(facility)
+      WHERE email = $(email)
+      RETURNING *;`,
+      { newEmail, firstName, lastName, facility, email },
     );
-    return res.status(200).send(newUser);
+    return res.status(200).send(keysToCamel(updatedUser));
   } catch (err) {
     return res.status(500).send(err.message);
   }
@@ -57,34 +116,6 @@ user.delete('/:email', async (req, res) => {
     const { email } = req.params;
     await db.query(`DELETE FROM public.user WHERE email = $(email)`, { email });
     return res.status(200).send(`User with email ${email} was deleted.`);
-  } catch (err) {
-    return res.status(500).send(err.message);
-  }
-});
-
-user.put('/:email', async (req, res) => {
-  try {
-    const { email } = req.params;
-    const { id, newEmail, firstName, lastName, facility } = req.body;
-
-    try {
-      isNumeric(facility, 'Not a valid facility');
-    } catch (err) {
-      return res.status(400).send(err.message);
-    }
-
-    const updatedUser = await db.query(
-      `UPDATE public.user SET
-      ${id ? ` id = $(id) ` : ''}
-      ${email ? `, email = $(newEmail) ` : ''}
-      ${firstName ? `, first_name = $(firstName) ` : ''}
-      ${lastName ? `, last_name = $(lastName) ` : ''}
-      ${facility ? `, facility = $(facility)` : ''}
-      WHERE email = $(email)
-      RETURNING *;`,
-      { id, newEmail, firstName, lastName, facility, email },
-    );
-    return res.status(200).send(updatedUser);
   } catch (err) {
     return res.status(500).send(err.message);
   }
