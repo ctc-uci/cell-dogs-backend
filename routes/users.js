@@ -114,8 +114,12 @@ user.put('/:email', async (req, res) => {
 user.delete('/:email', async (req, res) => {
   try {
     const { email } = req.params;
+    // get uid from email using firebase
+    const userRecord = await admin.auth().getUserByEmail(email);
     await db.query(`DELETE FROM public.user WHERE email = $(email)`, { email });
+    await admin.auth().deleteUser(userRecord.uid);
     return res.status(200).send(`User with email ${email} was deleted.`);
+    // dele
   } catch (err) {
     return res.status(500).send(err.message);
   }
