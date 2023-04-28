@@ -52,18 +52,18 @@ facilityContacts.post('/', async (req, res) => {
 // UPDATE facility contact row
 facilityContacts.put('/:id', async (req, res) => {
   try {
-    const { facilityId } = req.params;
+    const { id } = req.params;
     const { name, title, phoneNumber, emailAddress } = req.body;
     const updatedFacilityContact = await db.query(
       `UPDATE facility_contacts SET
-      facility_id = $(facilityId)
+      id = $(id)
       ${name ? `, name = $(name) ` : ''}
       ${title ? `, title = $(title) ` : ''}
       ${phoneNumber ? `, phone_number = $(phoneNumber) ` : ''}
       ${emailAddress ? `, email_address = $(emailAddress) ` : ''}
       WHERE id = $(id)
       RETURNING *;`,
-      { facilityId, name, title, phoneNumber, emailAddress },
+      { id, name, title, phoneNumber, emailAddress },
     );
     return res.status(200).send(updatedFacilityContact);
   } catch (err) {
