@@ -50,7 +50,7 @@ facilityContacts.post('/', async (req, res) => {
 });
 
 // UPDATE facility contact row
-facilityContacts.put('/:facilityId', async (req, res) => {
+facilityContacts.put('/:id', async (req, res) => {
   try {
     const { facilityId } = req.params;
     const { name, title, phoneNumber, emailAddress } = req.body;
@@ -61,7 +61,7 @@ facilityContacts.put('/:facilityId', async (req, res) => {
       ${title ? `, title = $(title) ` : ''}
       ${phoneNumber ? `, phone_number = $(phoneNumber) ` : ''}
       ${emailAddress ? `, email_address = $(emailAddress) ` : ''}
-      WHERE facility_id = $(facilityId)
+      WHERE id = $(id)
       RETURNING *;`,
       { facilityId, name, title, phoneNumber, emailAddress },
     );
