@@ -72,13 +72,13 @@ facilityContacts.put('/:facilityId', async (req, res) => {
 });
 
 // DELETE a facility contact
-facilityContacts.delete('/:facilityId', async (req, res) => {
+facilityContacts.delete('/:id', async (req, res) => {
   try {
-    const { facilityId } = req.params;
-    await db.query('DELETE from facility_contacts WHERE facility_id = $(facilityId)', {
-      facilityId,
+    const { id } = req.params;
+    await db.query('DELETE from facility_contacts WHERE id = $(id)', {
+      id,
     });
-    res.status(200).send('Deleted facility');
+    res.status(200).send('Deleted Facility Contact');
   } catch (err) {
     res.status(500).send(err.message);
   }
