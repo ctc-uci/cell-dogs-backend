@@ -16,6 +16,7 @@
     "*.js": "yarn run eslint"
   },
   "dependencies": {
+    "@prisma/client": "4.12.0",
     "cors": "^2.8.5",
     "cryptr": "^6.2.0",
     "dotenv": "^10.0.0",
@@ -36,6 +37,7 @@
   "devDependencies": {
     "eslint-config-prettier": "^8.3.0",
     "husky": "^7.0.4",
-    "lint-staged": "^11.2.6"
+    "lint-staged": "^11.2.6",
+    "prisma": "4.12.0"
   }
 }

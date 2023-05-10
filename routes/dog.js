@@ -117,7 +117,7 @@ dog.post('/', async (request, response) => {
         staffAdoption,
         specialNeeds,
         deceased,
-        facilityUnit
+        facilityUnit,
       },
     );
     response.send(newDog);
