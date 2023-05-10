@@ -5,9 +5,26 @@ const dog = express.Router();
 
 dog.get('/', async (request, response) => {
   try {
-    const allRows = await db.query('SELECT * FROM dog');
+    const { filterBy, facility } = request.query;
+    console.log(filterBy, facility);
+    const conditionMap = {
+      allMales: `"gender" = 'Male'`,
+      allFemales: `"gender" = 'Female`,
+      service: `"service" = true`,
+      specialNeeds: `"specialNeeds" = true`,
+      staffAdoption: `"staffAdoption" = true`,
+      All: '',
+    };
+    const facilityCondition = facility ? `AND facilityid = $(facility)` : '';
+    const allRows = await db.query(
+      `SELECT * FROM dog WHERE ${conditionMap[filterBy] || '1=1'} ${facilityCondition}`,
+      {
+        facility,
+      },
+    );
     response.status(200).json(allRows);
   } catch (err) {
+    console.log(err);
     response.status(400).send(err.message);
   }
 });
@@ -15,6 +32,7 @@ dog.get('/', async (request, response) => {
 dog.get('/:dogId', async (request, response) => {
   try {
     const { dogId } = request.params;
+
     const dogIdRows = await db.query(`SELECT * FROM dog WHERE dogId = $(dogId)`, { dogId });
     response.status(200).json(dogIdRows);
   } catch (err) {
@@ -25,16 +43,33 @@ dog.get('/:dogId', async (request, response) => {
 dog.get('/search/:name', async (request, response) => {
   try {
     const { name } = request.params;
+    const { filterBy, facility } = request.query;
+
+    console.log(filterBy, facility);
+    const conditionMap = {
+      allMales: `"gender" = 'Male'`,
+      allFemales: `"gender" = 'Female`,
+      service: `"service" = true`,
+      specialNeeds: `"specialNeeds" = true`,
+      staffAdoption: `"staffAdoption" = true`,
+      All: '',
+    };
+    const facilityCondition = facility ? `AND facilityid = $(facility)` : '';
     const stringMatchRows = await db.query(
-      `SELECT * FROM dog WHERE dogname LIKE '%' || $(name) || '%' OR shelter LIKE '%' || $(name) || '%' OR breed LIKE '%' || $(name) || '%' OR 
+      `SELECT * FROM dog WHERE (dogname LIKE '%' || $(name) || '%' OR shelter LIKE '%' || $(name) || '%' OR breed LIKE '%' || $(name) || '%' OR 
       altname LIKE '%' || $(name) || '%' OR notes LIKE '%' || $(name) || '%' OR adoptername LIKE '%' || $(name) || '%' OR adopterphone LIKE '%' || $(name) || '%'
       OR addrline LIKE '%' || $(name) || '%' OR adoptcity LIKE '%' || $(name) || '%' OR adoptstate LIKE '%' || $(name) || '%' OR zip LIKE '%' || $(name) || 
-      '%' OR adoptemail LIKE '%' || $(name) || '%'
-`,
-      { name },
+      '%' OR adoptemail LIKE '%' || $(name) || '%') AND ${
+        conditionMap[filterBy] || '1=1'
+      } ${facilityCondition}`,
+      {
+        name,
+        facility,
+      },
     );
     response.status(200).json(stringMatchRows);
   } catch (err) {
+    console.log(err);
     response.status(400).send(err.message);
   }
 });
