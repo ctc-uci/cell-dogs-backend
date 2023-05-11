@@ -31,13 +31,8 @@ user.get('/:email', async (req, res) => {
 
 user.post('/', async (req, res) => {
   try {
-    const { email, firstName, lastName, facility } = req.body;
+    const { email, firstName, lastName, accountType } = req.body;
 
-    try {
-      isNumeric(facility, 'Not a valid facility');
-    } catch (err) {
-      return res.status(400).send(err.message);
-    }
     const registrationId = uuid();
     const userRecord = await admin.auth().createUser({
       email,
@@ -49,12 +44,12 @@ user.post('/', async (req, res) => {
     const { uid } = userRecord;
     console.log('Successfully created new user:', userRecord.uid);
     const newUser = await db.query(
-      `INSERT INTO public.user (email, first_name, last_name, facility, registration_id, uid) VALUES ($(email), $(firstName), $(lastName), $(facility), $(registrationId), $(uid)) RETURNING *`,
+      `INSERT INTO public.user (email, first_name, last_name, accountType, registration_id, uid) VALUES ($(email), $(firstName), $(lastName), $(accountType), $(registrationId), $(uid)) RETURNING *`,
       {
         email,
         firstName,
         lastName,
-        facility,
+        accountType,
         registrationId,
         uid,
       },
@@ -87,23 +82,17 @@ user.post('/', async (req, res) => {
 user.put('/:email', async (req, res) => {
   try {
     const { email } = req.params;
-    const { newEmail, firstName, lastName, facility } = req.body;
-
-    try {
-      isNumeric(facility, 'Not a valid facility');
-    } catch (err) {
-      return res.status(400).send(err.message);
-    }
+    const { newEmail, firstName, lastName, accountType } = req.body;
 
     const updatedUser = await db.query(
       `UPDATE public.user SET
         email = $(newEmail),
         first_name = $(firstName),
         last_name = $(lastName),
-        facility = $(facility)
+        account_type = $(accountType)
       WHERE email = $(email)
       RETURNING *;`,
-      { newEmail, firstName, lastName, facility, email },
+      { newEmail, firstName, lastName, accountType, email },
     );
     return res.status(200).send(keysToCamel(updatedUser));
   } catch (err) {
