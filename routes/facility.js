@@ -7,7 +7,13 @@ const facilityRouter = express();
 // GET all facilities
 facilityRouter.get('/', async (req, res) => {
   try {
-    const allFacilities = await db.query('SELECT * FROM facility');
+    const allFacilities = await db.query(`
+      SELECT f.*, 
+        (SELECT STRING_AGG(name, ', ')
+        FROM facility_contacts
+        WHERE facility_id = f.id) AS facility_contacts
+      FROM facility f;
+    `);
     res.status(200).send(allFacilities);
   } catch (err) {
     res.status(500).send(err.message);

@@ -10,7 +10,7 @@ const { isNumeric, keysToCamel } = require('../common/utils');
 
 user.get('/', async (req, res) => {
   try {
-    const allUserInfo = await db.query('SELECT * FROM public.user');
+    const allUserInfo = await db.query('SELECT * FROM "user" ORDER BY id::numeric DESC;');
     return res.status(200).send(keysToCamel(allUserInfo));
   } catch (err) {
     return res.status(500).send(err.message);
@@ -31,8 +31,7 @@ user.get('/:email', async (req, res) => {
 
 user.post('/', async (req, res) => {
   try {
-    const { email, firstName, lastName, accountType } = req.body;
-
+    const { email, firstName, lastName, role, accountType } = req.body;
     const registrationId = uuid();
     const userRecord = await admin.auth().createUser({
       email,
@@ -44,7 +43,7 @@ user.post('/', async (req, res) => {
     const { uid } = userRecord;
     console.log('Successfully created new user:', userRecord.uid);
     const newUser = await db.query(
-      `INSERT INTO public.user (email, first_name, last_name, accountType, registration_id, uid) VALUES ($(email), $(firstName), $(lastName), $(accountType), $(registrationId), $(uid)) RETURNING *`,
+      `INSERT INTO public.user (email, first_name, last_name, account_type, role, registration_id, uid) VALUES ($(email), $(firstName), $(lastName), $(accountType), $(role), $(registrationId), $(uid)) RETURNING *`,
       {
         email,
         firstName,
@@ -52,6 +51,7 @@ user.post('/', async (req, res) => {
         accountType,
         registrationId,
         uid,
+        role,
       },
     );
     // add user to firebase
@@ -82,17 +82,18 @@ user.post('/', async (req, res) => {
 user.put('/:email', async (req, res) => {
   try {
     const { email } = req.params;
-    const { newEmail, firstName, lastName, accountType } = req.body;
+    const { newEmail, firstName, lastName, accountType, role } = req.body;
 
     const updatedUser = await db.query(
       `UPDATE public.user SET
         email = $(newEmail),
         first_name = $(firstName),
         last_name = $(lastName),
-        account_type = $(accountType)
+        account_type = $(accountType),
+        role = $(role)
       WHERE email = $(email)
       RETURNING *;`,
-      { newEmail, firstName, lastName, accountType, email },
+      { newEmail, firstName, lastName, accountType, email, role },
     );
     return res.status(200).send(keysToCamel(updatedUser));
   } catch (err) {
