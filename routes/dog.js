@@ -1,8 +1,10 @@
 const express = require('express');
+const Prisma = require('@prisma/client');
 const { db } = require('../server/db');
 
 const dog = express.Router();
 
+const prisma = new Prisma.PrismaClient();
 dog.get('/', async (request, response) => {
   try {
     const { filterBy, facility } = request.query;
@@ -75,88 +77,81 @@ dog.get('/search/:name', async (request, response) => {
 });
 
 dog.post('/', async (request, response) => {
-  console.log(request.body);
   try {
     const {
-      dogid,
-      facilityid,
-      groupnum,
-      graddate,
-      dogname,
-      age,
-      shelter,
-      breed,
-      chiptype,
-      chipnum,
-      gender,
-      altname,
-      notes,
-      adoptername,
-      adopterphone,
-      addrline,
-      adoptcity,
-      adoptstate,
-      zip,
-      adoptemail,
-      fees,
       revenue,
-      service,
-      therapy,
-      staffAdoption,
-      specialNeeds,
-      deceased,
+      fees,
+      adopterzip,
+      adopterstate,
+      adoptercity,
+      adopteraddrline,
+      adopteremail,
+      adopterphone,
+      adoptername,
+      notes,
       facilityUnit,
+      facilityid,
+      graddate,
+      groupnum,
+      shelter,
+      altname,
+      gender,
+      chipnum,
+      chiptype,
+      breed,
+      age,
+      dogname,
+      specialTag,
+      therapyTag,
+      staffAdoptionTag,
+      deceasedTag,
+      serviceTag,
     } = request.body;
-    const newDog = await db.query(
-      `INSERT INTO dog(dogid, facilityid, groupnum,
-        graddate, dogname, age,
-        shelter, breed, chiptype,
-        chipnum, gender,
-        altname, notes, adoptername,
-        adopterphone, addrline, adoptcity,
-        adoptstate, zip, adoptemail,
-        fees, revenue, service, therapy,
-        "staffAdoption", "specialNeeds", deceased, "facilityUnit")
-      VALUES($(dogid), $(facilityid), $(groupnum),
-      $(graddate), $(dogname), $(age), $(shelter),
-      $(breed), $(chiptype), $(chipnum), $(gender),
-        $(altname), $(notes), $(adoptername),
-        $(adopterphone), $(addrline), $(adoptcity), $(adoptstate),
-         $(zip), $(adoptemail), $(fees), $(revenue), $(service),
-         $(therapy), $(staffAdoption), $(specialNeeds), $(deceased), $(facilityUnit)) RETURNING *`,
-      {
-        dogid,
-        facilityid,
-        groupnum,
-        graddate,
-        dogname,
-        age,
-        shelter,
-        breed,
-        chiptype,
-        chipnum,
-        gender,
-        altname,
-        notes,
-        adoptername,
-        adopterphone,
-        addrline,
-        adoptcity,
-        adoptstate,
-        zip,
-        adoptemail,
-        fees,
+    const genderMap = {
+      Female: Prisma.vax.Female,
+      Male: Prisma.vax.Male,
+      'Female-Spayed': Prisma.vax.Female_Spayed,
+      'Male-Neutered': Prisma.vax.Male_Neutered,
+    };
+
+    const newDog = await prisma.dog.create({
+      data: {
         revenue,
-        service,
-        therapy,
-        staffAdoption,
-        specialNeeds,
-        deceased,
+        fees,
+        zip: adopterzip,
+        adoptstate: adopterstate,
+        adoptcity: adoptercity,
+        addrline: adopteraddrline,
+        adoptemail: adopteremail,
+        adopterphone,
+        adoptername,
+        notes,
         facilityUnit,
+        graddate: new Date(graddate),
+        groupnum: parseInt(groupnum, 10),
+        shelter,
+        altname,
+        gender: genderMap[gender],
+        chipnum: parseInt(chipnum, 10),
+        chiptype,
+        breed,
+        age,
+        dogname,
+        specialNeeds: specialTag,
+        therapy: therapyTag,
+        staffAdoption: staffAdoptionTag,
+        deceased: deceasedTag,
+        service: serviceTag,
+        facility: {
+          connect: {
+            id: parseInt(facilityid, 10),
+          },
+        },
       },
-    );
+    });
     response.send(newDog);
   } catch (err) {
+    console.log(err);
     response.status(400).send(err.message);
   }
 });
