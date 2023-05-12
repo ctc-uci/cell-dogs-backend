@@ -1,5 +1,4 @@
 const express = require('express');
-const { isZipCode } = require('../common/utils');
 const { db } = require('../server/db');
 
 const facilityRouter = express();
@@ -34,15 +33,15 @@ facilityRouter.get('/:id', async (req, res) => {
 // CREATE a new facility
 facilityRouter.post('/', async (req, res) => {
   try {
-    const { name, addressLine, description } = req.body;
+    const { name, addressLine, description, image } = req.body;
 
     if (!name) throw new Error('Name is required.');
     if (!addressLine) throw new Error('Address line is required.');
     if (!description) throw new Error('Description is required.');
 
     const newFacility = await db.query(
-      'INSERT INTO facility (name, address_line, description) VALUES ($(name), $(addressLine), $(description)) RETURNING *',
-      { name, addressLine, description },
+      'INSERT INTO facility (name, address_line, description, image) VALUES ($(name), $(addressLine), $(description), $(image)) RETURNING *',
+      { name, addressLine, description, image },
     );
     return res.status(200).send(newFacility);
   } catch (err) {
