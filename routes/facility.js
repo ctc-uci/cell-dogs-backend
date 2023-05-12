@@ -34,15 +34,15 @@ facilityRouter.get('/:id', async (req, res) => {
 // CREATE a new facility
 facilityRouter.post('/', async (req, res) => {
   try {
-    const { name, addressLine, city, state, zipcode, description } = req.body;
-    try {
-      isZipCode(zipcode, 'Not a valid zipcode');
-    } catch (err) {
-      return res.status(400).send(err.message);
-    }
+    const { name, addressLine, description } = req.body;
+
+    if (!name) throw new Error('Name is required.');
+    if (!addressLine) throw new Error('Address line is required.');
+    if (!description) throw new Error('Description is required.');
+
     const newFacility = await db.query(
-      'INSERT INTO facility (name, address_line, city, state, zipcode, description) VALUES ($(name), $(addressLine), $(city), $(state), $(zipcode), $(description)) RETURNING *',
-      { name, addressLine, city, state, zipcode, description },
+      'INSERT INTO facility (name, address_line, description) VALUES ($(name), $(addressLine), $(description)) RETURNING *',
+      { name, addressLine, description },
     );
     return res.status(200).send(newFacility);
   } catch (err) {
@@ -54,26 +54,21 @@ facilityRouter.post('/', async (req, res) => {
 facilityRouter.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, addressLine, city, state, zipcode, description } = req.body;
-    if (zipcode) {
-      try {
-        isZipCode(zipcode, 'Not a valid zipcode');
-      } catch (err) {
-        return res.status(400).send(err.message);
-      }
-    }
+    const { name, addressLine, description } = req.body;
+
+    if (!name) throw new Error('Name is required.');
+    if (!addressLine) throw new Error('Address line is required.');
+    if (!description) throw new Error('Description is required.');
+
     const updatedFacility = await db.query(
       `UPDATE facility SET
       id = $(id)
       ${name ? `, name = $(name) ` : ''}
       ${addressLine ? `, address_line = $(addressLine) ` : ''}
-      ${city ? `, city = $(city) ` : ''}
-      ${state ? `, state = $(state) ` : ''}
-      ${zipcode ? `, zipcode = $(zipcode) ` : ''}
       ${description ? `, description = $(description) ` : ''}
       WHERE id = $(id)
       RETURNING *;`,
-      { id, name, addressLine, city, state, zipcode, description },
+      { id, name, addressLine, description },
     );
     return res.status(200).send(updatedFacility);
   } catch (err) {
