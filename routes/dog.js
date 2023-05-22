@@ -20,10 +20,9 @@ dog.get('/', async (request, response) => {
       All: '',
     };
     const facilityCondition = facility ? `AND facilityid = $(facility)` : '';
-    console.log(`SELECT * FROM dog WHERE ${conditionMap[filterBy] || '1=1'} ${facilityCondition}`,
-    {
+    console.log(`SELECT * FROM dog WHERE ${conditionMap[filterBy] || '1=1'} ${facilityCondition}`, {
       facility,
-    })
+    });
     const allRows = await db.query(
       `SELECT * FROM dog WHERE ${conditionMap[filterBy] || '1=1'} ${facilityCondition}`,
       {
