@@ -11,13 +11,19 @@ dog.get('/', async (request, response) => {
     console.log(filterBy, facility);
     const conditionMap = {
       allMales: `"gender" = 'Male'`,
-      allFemales: `"gender" = 'Female`,
+      allFemales: `"gender" = 'Female'`,
       service: `"service" = true`,
       specialNeeds: `"specialNeeds" = true`,
+      therapy: `"therapy" = true`,
+      deceased: `"deceased" = true`,
       staffAdoption: `"staffAdoption" = true`,
       All: '',
     };
     const facilityCondition = facility ? `AND facilityid = $(facility)` : '';
+    console.log(`SELECT * FROM dog WHERE ${conditionMap[filterBy] || '1=1'} ${facilityCondition}`,
+    {
+      facility,
+    })
     const allRows = await db.query(
       `SELECT * FROM dog WHERE ${conditionMap[filterBy] || '1=1'} ${facilityCondition}`,
       {
