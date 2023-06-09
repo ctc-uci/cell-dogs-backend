@@ -21,7 +21,9 @@ dog.get('/', async (request, response) => {
     };
     const facilityCondition = facility ? `AND facilityid = $(facility)` : '';
     const allRows = await db.query(
-      `SELECT * FROM dog WHERE ${conditionMap[filterBy] || '1=1'} ${facilityCondition} ORDER BY graddate`,
+      `SELECT * FROM dog WHERE ${
+        conditionMap[filterBy] || '1=1'
+      } ${facilityCondition} ORDER BY graddate`,
       {
         facility,
       },
@@ -32,7 +34,6 @@ dog.get('/', async (request, response) => {
     response.status(400).send(err.message);
   }
 });
-
 
 dog.get('/:dogId', async (request, response) => {
   try {
@@ -174,97 +175,84 @@ dog.put('/:dogId', async (req, res) => {
   try {
     const { dogId } = req.params;
     const {
-      facilityid,
-      groupnum,
-      graddate,
-      dogname,
-      age,
-      shelter,
-      breed,
-      chiptype,
-      chipnum,
-      gender,
-      altname,
-      notes,
-      adoptername,
-      adopterphone,
-      addrline,
-      adoptcity,
-      adoptstate,
-      zip,
-      adoptemail,
-      fees,
       revenue,
-      service,
-      therapy,
-      staffAdoption,
-      specialNeeds,
-      deceased,
+      fees,
+      adopterzip,
+      adopterstate,
+      adoptercity,
+      adopteraddrline,
+      adopteremail,
+      adopterphone,
+      adoptername,
+      notes,
+      facilityUnit,
+      facilityid,
+      graddate,
+      groupnum,
+      shelter,
+      altname,
+      gender,
+      chipnum,
+      chiptype,
+      image,
+      breed,
+      age,
+      dogname,
+      specialTag,
+      therapyTag,
+      staffAdoptionTag,
+      deceasedTag,
+      serviceTag,
     } = req.body;
+    const genderMap = {
+      Female: Prisma.vax.Female,
+      Male: Prisma.vax.Male,
+      'Female-Spayed': Prisma.vax.Female_Spayed,
+      'Male-Neutered': Prisma.vax.Male_Neutered,
+    };
 
-    const updatedDog = await db.query(
-      `UPDATE dog SET
-      facilityid = $(facilityid),
-      groupnum = $(groupnum),
-      graddate = $(graddate),
-      dogname = $(dogname),
-      age = $(age),
-      shelter = $(shelter),
-      breed = $(breed),
-      chiptype = $(chiptype),
-      chipnum = $(chipnum),
-      gender = $(gender),
-      altname = $(altname),
-      notes = $(notes),
-      adoptername = $(adoptername),
-      adopterphone = $(adopterphone),
-      addrline = $(addrline),
-      adoptcity = $(adoptcity),
-      adoptstate = $(adoptstate),
-      zip = $(zip),
-      adoptemail = $(adoptemail),
-      fees = $(fees),
-      revenue = $(revenue),
-      service = $(service),
-      therapy = $(therapy),
-      "staffAdoption" = $(staffAdoption),
-      "specialNeeds" = $(specialNeeds),
-      deceased = $(deceased)
-      WHERE dogid = $(dogId)
-      RETURNING *`,
-      {
-        facilityid,
-        groupnum,
-        graddate,
-        dogname,
-        age,
-        shelter,
-        breed,
-        chiptype,
-        chipnum,
-        gender,
-        altname,
-        notes,
-        adoptername,
-        adopterphone,
-        addrline,
-        adoptcity,
-        adoptstate,
-        zip,
-        adoptemail,
-        fees,
+    const newDog = await prisma.dog.update({
+      data: {
         revenue,
-        service,
-        therapy,
-        staffAdoption,
-        specialNeeds,
-        deceased,
-        dogId,
+        fees,
+        zip: adopterzip,
+        adoptstate: adopterstate,
+        adoptcity: adoptercity,
+        addrline: adopteraddrline,
+        adoptemail: adopteremail,
+        adopterphone,
+        adoptername,
+        image,
+        notes,
+        facilityUnit,
+        graddate: new Date(graddate),
+        groupnum: parseInt(groupnum, 10),
+        shelter,
+        altname,
+        gender: genderMap[gender],
+        chipnum: parseInt(chipnum, 10),
+        chiptype,
+        breed,
+        age,
+        dogname,
+        specialNeeds: specialTag,
+        therapy: therapyTag,
+        staffAdoption: staffAdoptionTag,
+        deceased: deceasedTag,
+        service: serviceTag,
+        facility: {
+          connect: {
+            id: parseInt(facilityid, 10),
+          },
+        },
       },
-    );
-
-    res.send(updatedDog.rows[0]);
+      where: {
+        dogid: parseInt(dogId, 10),
+      },
+    });
+    res.send(newDog);
   } catch (err) {
+    console.log(err);
     res.status(400).send(err.message);
   }
 });
