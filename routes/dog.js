@@ -10,8 +10,8 @@ dog.get('/', async (request, response) => {
     const { filterBy, facility } = request.query;
     console.log(filterBy, facility);
     const conditionMap = {
-      allMales: `"gender" = 'Male'`,
-      allFemales: `"gender" = 'Female'`,
+      allMales: `("gender" = 'Male' OR "gender" = 'Male-Neutered')`,
+      allFemales: `("gender" = 'Female' OR "gender" = 'Female-Spayed')`,
       service: `"service" = true`,
       specialNeeds: `"specialNeeds" = true`,
       therapy: `"therapy" = true`,
