@@ -32,15 +32,16 @@ facilityContacts.get('/:facilityId', async (req, res) => {
 // Create new facility contact
 facilityContacts.post('/', async (req, res) => {
   try {
-    const { facilityId, name, title, phoneNumber, emailAddress } = req.body;
+    const { facilityId, name, title, phoneNumber, emailAddress, notes } = req.body;
     const allContacts = await db.query(
-      'INSERT INTO public.facility_contacts (facility_id, name, title, phone_number, email_address) VALUES ($(facilityId), $(name), $(title), $(phoneNumber), $(emailAddress)) RETURNING *',
+      'INSERT INTO public.facility_contacts (facility_id, name, title, phone_number, email_address, notes) VALUES ($(facilityId), $(name), $(title), $(phoneNumber), $(emailAddress), $(notes)) RETURNING *',
       {
         facilityId,
         name,
         title,
         phoneNumber,
         emailAddress,
+        notes,
       },
     );
     res.status(200).send(allContacts);
@@ -53,7 +54,7 @@ facilityContacts.post('/', async (req, res) => {
 facilityContacts.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, title, phoneNumber, emailAddress } = req.body;
+    const { name, title, phoneNumber, emailAddress, notes } = req.body;
     const updatedFacilityContact = await db.query(
       `UPDATE facility_contacts SET
       id = $(id)
@@ -61,9 +62,10 @@ facilityContacts.put('/:id', async (req, res) => {
       ${title ? `, title = $(title) ` : ''}
       ${phoneNumber ? `, phone_number = $(phoneNumber) ` : ''}
       ${emailAddress ? `, email_address = $(emailAddress) ` : ''}
+      ${notes ? `, notes= $(notes) ` : ''}
       WHERE id = $(id)
       RETURNING *;`,
-      { id, name, title, phoneNumber, emailAddress },
+      { id, name, title, phoneNumber, emailAddress, notes },
     );
     return res.status(200).send(updatedFacilityContact);
   } catch (err) {
