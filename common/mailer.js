@@ -5,12 +5,14 @@ require('dotenv').config();
 // password is process.env.NODEMAILER_PASSWORD
 
 const mailer = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.ionos.com',
   auth: {
     user: process.env.NODEMAILER_EMAIL,
 
     pass: process.env.NODEMAILER_PASSWORD,
   },
+  from: process.env.REACT_APP_EMAIL_USERNAME,
+  secure: true,
 });
 
 module.exports = mailer;
