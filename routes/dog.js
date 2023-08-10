@@ -23,7 +23,7 @@ dog.get('/', async (request, response) => {
     const allRows = await db.query(
       `SELECT * FROM dog WHERE ${
         conditionMap[filterBy] || '1=1'
-      } ${facilityCondition} ORDER BY graddate`,
+      } ${facilityCondition} ORDER BY graddate DESC`,
       {
         facility,
       },
@@ -62,12 +62,12 @@ dog.get('/search/:name', async (request, response) => {
     };
     const facilityCondition = facility ? `AND facilityid = $(facility)` : '';
     const stringMatchRows = await db.query(
-      `SELECT * FROM dog WHERE (dogname LIKE '%' || $(name) || '%' OR shelter LIKE '%' || $(name) || '%' OR breed LIKE '%' || $(name) || '%' OR 
-      altname LIKE '%' || $(name) || '%' OR notes LIKE '%' || $(name) || '%' OR adoptername LIKE '%' || $(name) || '%' OR adopterphone LIKE '%' || $(name) || '%'
-      OR addrline LIKE '%' || $(name) || '%' OR adoptcity LIKE '%' || $(name) || '%' OR adoptstate LIKE '%' || $(name) || '%' OR zip LIKE '%' || $(name) || 
-      '%' OR adoptemail LIKE '%' || $(name) || '%') AND ${
+      `SELECT * FROM dog WHERE (dogname ILIKE '%' || $(name) || '%' OR shelter ILIKE '%' || $(name) || '%' OR breed ILIKE '%' || $(name) || '%' OR 
+      altname ILIKE '%' || $(name) || '%' OR notes ILIKE '%' || $(name) || '%' OR adoptername ILIKE '%' || $(name) || '%' OR adopterphone ILIKE '%' || $(name) || '%'
+      OR addrline ILIKE '%' || $(name) || '%' OR adoptcity ILIKE '%' || $(name) || '%' OR adoptstate ILIKE '%' || $(name) || '%' OR zip ILIKE '%' || $(name) || 
+      '%' OR adoptemail ILIKE '%' || $(name) || '%') AND ${
         conditionMap[filterBy] || '1=1'
-      } ${facilityCondition}`,
+      } ${facilityCondition} ORDER BY graddate DESC`,
       {
         name,
         facility,
