@@ -35,10 +35,6 @@ facilityRouter.post('/', async (req, res) => {
   try {
     const { name, addressLine, description, image } = req.body;
 
-    if (!name) throw new Error('Name is required.');
-    if (!addressLine) throw new Error('Address line is required.');
-    if (!description) throw new Error('Description is required.');
-
     const newFacility = await db.query(
       'INSERT INTO facility (name, address_line, description, image) VALUES ($(name), $(addressLine), $(description), $(image)) RETURNING *',
       { name, addressLine, description, image },
@@ -54,10 +50,6 @@ facilityRouter.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { name, addressLine, description } = req.body;
-
-    if (!name) throw new Error('Name is required.');
-    if (!addressLine) throw new Error('Address line is required.');
-    if (!description) throw new Error('Description is required.');
 
     const updatedFacility = await db.query(
       `UPDATE facility SET
