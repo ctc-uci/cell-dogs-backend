@@ -186,7 +186,7 @@ dog.put('/:dogId', async (req, res) => {
       adoptername,
       notes,
       facilityUnit,
-      facilityid,
+      // facilityid,
       graddate,
       groupnum,
       shelter,

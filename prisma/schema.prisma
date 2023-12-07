@@ -10,7 +10,7 @@ datasource db {
 model dog {
   dogid         Int       @id @default(autoincrement())
   facilityid    Int
-  groupnum      Int?
+  groupnum      String?   @db.VarChar
   graddate      DateTime? @db.Date
   dogname       String    @db.VarChar(50)
   age           Int?
