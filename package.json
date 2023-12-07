@@ -10,7 +10,8 @@
     "start": "nodemon app.js",
     "prepare": "husky install",
     "lint": "eslint '**/*.js'",
-    "format": "prettier --write \"**/*.js\""
+    "format": "prettier --write \"**/*.js\"",
+    "pull-db": "npx prisma db pull && npx prisma generate"
   },
   "lint-staged": {
     "*.js": "yarn run eslint"

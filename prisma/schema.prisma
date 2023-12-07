@@ -8,59 +8,58 @@ datasource db {
 }
 
 model dog {
-  dogid         Int      @id @default(autoincrement())
+  dogid         Int       @id @default(autoincrement())
   facilityid    Int
-  groupnum      Int
-  graddate      DateTime @db.Date
-  dogname       String   @db.VarChar(50)
-  age           Int
-  shelter       String   @db.VarChar(50)
-  breed         String   @db.VarChar(50)
-  chiptype      String   @db.VarChar(50)
-  chipnum       Int
-  gender        vax
-  altname       String   @db.VarChar(50)
-  notes         String   @db.VarChar(200)
-  adoptername   String   @db.VarChar(50)
-  adopterphone  String   @db.VarChar(11)
-  addrline      String   @db.VarChar(100)
-  adoptcity     String   @db.VarChar(50)
-  adoptstate    String   @db.VarChar(30)
-  zip           String   @db.VarChar(5)
-  adoptemail    String   @db.VarChar(100)
-  fees          Int
-  revenue       Int
-  service       Boolean
-  therapy       Boolean
-  staffAdoption Boolean
-  specialNeeds  Boolean
-  deceased      Boolean
-  facilityUnit  String?  @db.VarChar(50)
+  groupnum      Int?
+  graddate      DateTime? @db.Date
+  dogname       String    @db.VarChar(50)
+  age           Int?
+  shelter       String?   @db.VarChar(50)
+  breed         String?   @db.VarChar(50)
+  chiptype      String?   @db.VarChar(50)
+  chipnum       Int?
+  gender        vax?
+  altname       String?   @db.VarChar(50)
+  notes         String?   @db.VarChar(200)
+  adoptername   String?   @db.VarChar(50)
+  adopterphone  String?   @db.VarChar(11)
+  addrline      String?   @db.VarChar(100)
+  adoptcity     String?   @db.VarChar(50)
+  adoptstate    String?   @db.VarChar(30)
+  zip           String?   @db.VarChar(5)
+  adoptemail    String?   @db.VarChar(100)
+  fees          Int?
+  revenue       Int?
+  service       Boolean?
+  therapy       Boolean?
+  staffAdoption Boolean?
+  specialNeeds  Boolean?
+  deceased      Boolean?
+  facilityUnit  String?   @db.VarChar(50)
   image         String?
-  facility      facility @relation(fields: [facilityid], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  datecreated   DateTime  @default(now()) @db.Timestamptz(6)
 }
 
 model facility {
-  id                Int                 @id @default(autoincrement())
-  name              String              @db.VarChar(50)
-  address_line      String              @db.VarChar(150)
-  description       String              @db.VarChar(500)
-  dog               dog[]
-  facility_contacts facility_contacts[]
+  id           Int     @id @default(autoincrement())
+  name         String  @db.VarChar(50)
+  address_line String? @db.VarChar(150)
+  description  String? @db.VarChar(500)
+  image        String?
 }
 
 model facility_contacts {
   facility_id   Int
-  name          String   @db.VarChar(50)
-  title         String   @db.VarChar(50)
-  phone_number  String   @db.VarChar(50)
-  email_address String   @db.VarChar(50)
-  id            Int      @id @default(autoincrement())
-  facility      facility @relation(fields: [facility_id], references: [id], onDelete: Cascade, map: "facility_id")
+  name          String? @db.VarChar(50)
+  title         String? @db.VarChar(50)
+  phone_number  String? @db.VarChar(50)
+  email_address String? @db.VarChar(200)
+  id            Int     @id @default(autoincrement())
+  notes         String? @db.VarChar(500)
 }
 
 model user {
-  id              String  @id @unique @default(dbgenerated("nextval('id_seq'::regclass)")) @db.VarChar(50)
+  id              Int     @id @default(autoincrement())
   email           String  @db.VarChar(50)
   first_name      String  @db.VarChar(50)
   last_name       String  @db.VarChar(50)
@@ -68,6 +67,7 @@ model user {
   registration_id String? @db.Uuid
   uid             String? @db.VarChar(50)
   account_type    String? @db.VarChar(50)
+  image           String?
 }
 
 enum vax {
