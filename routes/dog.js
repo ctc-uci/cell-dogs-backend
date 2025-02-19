@@ -21,7 +21,7 @@ dog.get('/', async (request, response) => {
     };
     const facilityCondition = facility ? `AND facilityid = $(facility)` : '';
     const allRows = await db.query(
-      `SELECT * FROM dog WHERE ${
+      `SELECT * from dog_copy WHERE ${
         conditionMap[filterBy] || '1=1'
       } ${facilityCondition} ORDER BY graddate DESC`,
       {
@@ -39,7 +39,7 @@ dog.get('/:dogId', async (request, response) => {
   try {
     const { dogId } = request.params;
 
-    const dogIdRows = await db.query(`SELECT * FROM dog WHERE dogId = $(dogId)`, { dogId });
+    const dogIdRows = await db.query(`SELECT * from dog_copy WHERE dogId = $(dogId)`, { dogId });
     response.status(200).json(dogIdRows);
   } catch (err) {
     response.status(500).send(err.message);
@@ -62,7 +62,7 @@ dog.get('/search/:name', async (request, response) => {
     };
     const facilityCondition = facility ? `AND facilityid = $(facility)` : '';
     const stringMatchRows = await db.query(
-      `SELECT * FROM dog WHERE (dogname ILIKE '%' || $(name) || '%' OR shelter ILIKE '%' || $(name) || '%' OR breed ILIKE '%' || $(name) || '%' OR 
+      `SELECT * from dog_copy WHERE (dogname ILIKE '%' || $(name) || '%' OR shelter ILIKE '%' || $(name) || '%' OR breed ILIKE '%' || $(name) || '%' OR 
       altname ILIKE '%' || $(name) || '%' OR notes ILIKE '%' || $(name) || '%' OR adoptername ILIKE '%' || $(name) || '%' OR adopterphone ILIKE '%' || $(name) || '%'
       OR addrline ILIKE '%' || $(name) || '%' OR adoptcity ILIKE '%' || $(name) || '%' OR adoptstate ILIKE '%' || $(name) || '%' OR zip ILIKE '%' || $(name) || 
       '%' OR adoptemail ILIKE '%' || $(name) || '%') AND ${
@@ -94,7 +94,7 @@ dog.post('/', async (request, response) => {
       adoptername,
       notes,
       facilityUnit,
-      facilityid,
+      facilityId,
       graddate,
       groupnum,
       shelter,
@@ -119,7 +119,7 @@ dog.post('/', async (request, response) => {
       'Male-Neutered': Prisma.vax.Male_Neutered,
     };
 
-    const newDog = await prisma.dog.create({
+    const newDog = await prisma.dog_copy.create({
       data: {
         revenue,
         fees,
@@ -138,7 +138,7 @@ dog.post('/', async (request, response) => {
         shelter,
         altname,
         gender: genderMap[gender],
-        chipnum: parseInt(chipnum, 10),
+        chipnum: chipnum,
         chiptype,
         breed,
         age,
@@ -148,11 +148,12 @@ dog.post('/', async (request, response) => {
         staffAdoption: staffAdoptionTag,
         deceased: deceasedTag,
         service: serviceTag,
-        facility: {
-          connect: {
-            id: parseInt(facilityid, 10),
-          },
-        },
+        // facilityid: {
+        //   connect: {
+        //     id: parseInt(facilityIdUnparsed, 10),
+        //   },
+        // },
+        facilityid: facilityId
       },
     });
     response.send(newDog);
@@ -165,7 +166,7 @@ dog.post('/', async (request, response) => {
 dog.delete('/:dogId', async (request, response) => {
   try {
     const { dogId } = request.params;
-    await db.query(`DELETE FROM dog WHERE dogId = '${dogId}'`);
+    await db.query(`DELETE from dog_copy WHERE dogId = '${dogId}'`);
     response.send('Corresponding row was deleted.');
   } catch (err) {
     response.status(400).send(err.message);
@@ -228,7 +229,7 @@ dog.put('/:dogId', async (req, res) => {
       shelter,
       altname,
       gender: genderMap[gender],
-      chipnum: parseInt(chipnum, 10),
+      chipnum: chipnum,
       chiptype,
       breed,
       age,
@@ -246,7 +247,7 @@ dog.put('/:dogId', async (req, res) => {
     };
     Object.keys(data).forEach((key) => [undefined, NaN].includes(data[key]) && delete data[key]);
 
-    const newDog = await prisma.dog.update({
+    const newDog = await prisma.dog_copy.update({
       data,
       where: {
         dogid: parseInt(dogId, 10),

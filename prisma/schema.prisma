@@ -70,6 +70,47 @@ model user {
   image           String?
 }
 
+model dog_copy {
+  dogid         Int       @id @default(autoincrement())
+  facilityid    Int
+  groupnum      String?   @db.VarChar
+  graddate      DateTime? @db.Date
+  dogname       String    @db.VarChar(50)
+  age           Int?
+  shelter       String?   @db.VarChar(50)
+  breed         String?   @db.VarChar(50)
+  chiptype      String?   @db.VarChar(50)
+  gender        vax?
+  altname       String?   @db.VarChar(50)
+  notes         String?   @db.VarChar(200)
+  adoptername   String?   @db.VarChar(50)
+  adopterphone  String?   @db.VarChar(11)
+  addrline      String?   @db.VarChar(100)
+  adoptcity     String?   @db.VarChar(50)
+  adoptstate    String?   @db.VarChar(30)
+  zip           String?   @db.VarChar(5)
+  adoptemail    String?   @db.VarChar(100)
+  fees          Int?
+  revenue       Int?
+  service       Boolean?
+  therapy       Boolean?
+  staffAdoption Boolean?
+  specialNeeds  Boolean?
+  deceased      Boolean?
+  facilityUnit  String?   @db.VarChar(50)
+  image         String?
+  datecreated   DateTime  @default(now()) @db.Timestamptz(6)
+  chipnum       String?
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model temp {
+  dogid    Int?
+  groupnum String? @db.VarChar
+
+  @@ignore
+}
+
 enum vax {
   Female_Spayed @map("Female-Spayed")
   Male_Neutered @map("Male-Neutered")
